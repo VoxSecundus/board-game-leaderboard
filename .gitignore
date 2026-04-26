@@ -34,6 +34,9 @@
 /config/*.key
 /config/credentials.yml.enc
 
+# Kamal deployment config (project uses docker-compose.yml instead)
+/.kamal
+
 
 /app/assets/builds/*
 !/app/assets/builds/.keep
