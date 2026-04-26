@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html data-controller="dark-mode" class="h-full">
+  <head>
+    <title><%= content_for(:title) ? "#{content_for(:title)} — BGL" : "Board Game Leaderboard" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="h-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
+    <% if current_user_authenticated? %>
+      <nav class="fixed top-0 inset-x-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between h-16">
+            <div class="flex items-center gap-6">
+              <%= link_to "BGL", root_path, class: "text-lg font-bold text-indigo-600 dark:text-indigo-400 mr-4" %>
+              <%= link_to "Players",   "#", class: "text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" %>
+              <%= link_to "Games",     "#", class: "text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" %>
+              <%= link_to "Locations", "#", class: "text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" %>
+              <%= link_to "Plays",     "#", class: "text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" %>
+              <%= link_to "Compare",   "#", class: "text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" %>
+            </div>
+            <div class="flex items-center gap-3">
+              <button data-action="dark-mode#toggle"
+                      class="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      aria-label="Toggle dark mode">
+                <svg data-dark-mode-target="lightIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+                <svg data-dark-mode-target="darkIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                </svg>
+              </button>
+              <%= button_to "Logout", logout_path, method: :delete,
+                  class: "text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-colors bg-transparent border-0 cursor-pointer" %>
+            </div>
+          </div>
+        </div>
+      </nav>
+    <% end %>
+
+    <% if content_for?(:breadcrumbs) %>
+      <div class="<%= current_user_authenticated? ? 'mt-16' : '' %> bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 text-sm text-gray-500 dark:text-gray-400">
+          <%= yield :breadcrumbs %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if notice || alert %>
+      <div class="<%= current_user_authenticated? && !content_for?(:breadcrumbs) ? 'mt-16' : '' %> max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <% if notice %>
+          <div data-controller="flash" class="rounded-md bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 p-4 flex justify-between items-start">
+            <p class="text-sm text-green-700 dark:text-green-300"><%= notice %></p>
+            <button data-action="flash#dismiss" class="ml-4 text-green-500 hover:text-green-700 dark:text-green-400">&times;</button>
+          </div>
+        <% end %>
+        <% if alert %>
+          <div data-controller="flash" class="rounded-md bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 p-4 flex justify-between items-start">
+            <p class="text-sm text-red-700 dark:text-red-300"><%= alert %></p>
+            <button data-action="flash#dismiss" class="ml-4 text-red-500 hover:text-red-700 dark:text-red-400">&times;</button>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <main class="<%= current_user_authenticated? && !content_for?(:breadcrumbs) ? 'mt-16' : '' %> max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <%= yield %>
+    </main>
+  </body>
+</html>

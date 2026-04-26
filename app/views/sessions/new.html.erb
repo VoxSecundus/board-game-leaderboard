@@ -1,0 +1,25 @@
+<% content_for :title, "Login" %>
+
+<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+  <div class="w-full max-w-sm">
+    <h1 class="text-2xl font-bold text-center text-gray-900 dark:text-white mb-8">Board Game Leaderboard</h1>
+
+    <% if flash[:alert] %>
+      <div class="mb-4 rounded-md bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 p-4 text-sm text-red-700 dark:text-red-300">
+        <%= flash[:alert] %>
+      </div>
+    <% end %>
+
+    <%= form_with url: login_path, method: :post, class: "space-y-4" do |f| %>
+      <div>
+        <%= f.label :password, "Password", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= f.password_field :password,
+            autofocus: true,
+            autocomplete: "current-password",
+            class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+      </div>
+      <%= f.submit "Sign in",
+          class: "w-full rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 px-4 transition-colors cursor-pointer" %>
+    <% end %>
+  </div>
+</div>
