@@ -3,46 +3,42 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
-  scan_ruby:
+  test:
     runs-on: ubuntu-latest
+    env:
+      RAILS_ENV: test
+      # credentials.yml.enc is gitignored; provide secret_key_base directly for CI
+      SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE || '0000000000000000000000000000000000000000000000000000000000000000' }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+
+      - name: Install system dependencies
+        run: sudo apt-get update -qq && sudo apt-get install -y libvips
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
-      - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bin/brakeman --no-pager
-      
-      - name: Scan for known security vulnerabilities in gems used
-        run: bin/bundler-audit
-      
-  scan_js:
-    runs-on: ubuntu-latest
+      - name: Set up database
+        run: bin/rails db:create db:migrate
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - name: Run tests
+        run: bin/rails test
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-
-      - name: Scan for security vulnerabilities in JavaScript dependencies
-        run: bin/importmap audit
+      - name: Run system tests
+        run: bin/rails test:system
 
   lint:
     runs-on: ubuntu-latest
     env:
       RUBOCOP_CACHE_ROOT: tmp/rubocop
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -65,3 +61,35 @@ jobs:
       - name: Lint code for consistent style
         run: bin/rubocop -f github
 
+  scan_ruby:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Scan for common Rails security vulnerabilities using static analysis
+        run: bin/brakeman --no-pager
+
+      - name: Scan for known security vulnerabilities in gems used
+        run: bin/bundler-audit
+
+  scan_js:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Scan for security vulnerabilities in JavaScript dependencies
+        run: bin/importmap audit
