@@ -3,7 +3,7 @@
 ## Stack
 
 - Rails 8.1, Ruby 3.4
-- SQLite3 (plain, not encrypted — volume-level security in production)
+- SQLite3 (plain sqlite3 gem — `activerecord-sqlcipher-adapter` does not exist on RubyGems; if at-rest encryption is required in future, consider filesystem-level encryption or `ActiveRecord::Encryption`)
 - Tailwind CSS v4, Importmap, Hotwire (Turbo + Stimulus)
 - Active Storage (local disk), synchronous analysis enabled
 - PaperTrail (JSON serializer) on Play and PlayParticipant

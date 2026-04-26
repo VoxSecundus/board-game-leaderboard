@@ -13,6 +13,16 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert session[:authenticated]
   end
 
+  test "POST /login resets session to prevent session fixation" do
+    # Plant data in the session before login
+    get login_path
+    session[:pre_login_data] = "attacker_value"
+
+    SessionsController.any_instance.stubs(:valid_password?).returns(true)
+    post login_path, params: { password: "anything" }
+    assert_nil session[:pre_login_data], "session should be reset on login"
+  end
+
   test "POST /login with wrong password returns 422 and shows error" do
     SessionsController.any_instance.stubs(:valid_password?).returns(false)
     post login_path, params: { password: "anything" }

@@ -7,6 +7,7 @@ class SessionsController < ApplicationController
 
   def create
     if valid_password?(params[:password])
+      reset_session
       session[:authenticated] = true
       redirect_to root_path, notice: "Logged in."
     else
@@ -16,7 +17,7 @@ class SessionsController < ApplicationController
   end
 
   def destroy
-    session[:authenticated] = nil
+    reset_session
     redirect_to login_path, notice: "Logged out."
   end
 end
