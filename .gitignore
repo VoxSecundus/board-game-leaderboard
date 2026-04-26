@@ -37,6 +37,8 @@
 # Kamal deployment config (project uses docker-compose.yml instead)
 /.kamal
 
+/SPEC.md
+
 
 /app/assets/builds/*
 !/app/assets/builds/.keep
