@@ -7,7 +7,7 @@ module ApplicationHelper
     indicator    = is_active ? (current_dir == "asc" ? " ▲" : " ▼") : ""
 
     link_to(
-      safe_join([label, content_tag(:span, indicator, class: "text-indigo-500")]),
+      safe_join([ label, content_tag(:span, indicator, class: "text-indigo-500") ]),
       url_for(request.query_parameters.merge(sort: column, dir: new_dir)),
       class: "font-semibold text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
     )
@@ -17,7 +17,7 @@ module ApplicationHelper
     px = size == :sm ? 32 : 64
 
     img = if player.profile_picture.attached?
-      thumb = player.profile_picture.variant(resize_to_fill: [px, px])
+      thumb = player.profile_picture.variant(resize_to_fill: [ px, px ])
       image_tag(thumb,
         width: px, height: px,
         class: "inline-block rounded-full object-cover",
