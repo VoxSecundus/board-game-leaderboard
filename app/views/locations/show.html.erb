@@ -6,12 +6,13 @@
     <div>
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white"><%= @location.name %></h1>
       <% if @location.latitude.present? && @location.longitude.present? %>
+        <% map_query = { mlat: @location.latitude.to_s("F"), mlon: @location.longitude.to_s("F") }.to_query %>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
           <%= number_with_precision(@location.latitude, precision: 6) %>,
           <%= number_with_precision(@location.longitude, precision: 6) %>
           &nbsp;·&nbsp;
           <%= link_to "View on map",
-              "https://www.openstreetmap.org/?mlat=#{@location.latitude}&mlon=#{@location.longitude}",
+              "https://www.openstreetmap.org/?#{map_query}",
               target: "_blank", rel: "noopener noreferrer",
               class: "text-indigo-600 dark:text-indigo-400 hover:underline" %>
         </p>
