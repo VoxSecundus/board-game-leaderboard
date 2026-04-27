@@ -17,24 +17,20 @@ class PlayerTest < ActiveSupport::TestCase
 
   test "valid with square jpeg attached" do
     player = players(:alice)
-    player.profile_picture.attach(io: File.open(SQUARE_IMAGE), filename: "square.jpg", content_type: "image/jpeg")
+    player.profile_picture.attach(Rack::Test::UploadedFile.new(SQUARE_IMAGE, "image/jpeg"))
     assert player.valid?, player.errors.full_messages.inspect
   end
 
   test "invalid with non-square image" do
     player = players(:alice)
-    player.profile_picture.attach(io: File.open(NONSQUARE_IMAGE), filename: "nonsquare.jpg", content_type: "image/jpeg")
+    player.profile_picture.attach(Rack::Test::UploadedFile.new(NONSQUARE_IMAGE, "image/jpeg"))
     assert_not player.valid?
     assert player.errors[:profile_picture].any? { |e| e.include?("square") }
   end
 
   test "invalid with unsupported content type" do
     player = players(:alice)
-    player.profile_picture.attach(
-      io: File.open(GIF_IMAGE),
-      filename: "avatar.gif",
-      content_type: "image/gif"
-    )
+    player.profile_picture.attach(Rack::Test::UploadedFile.new(GIF_IMAGE, "image/gif"))
     assert_not player.valid?
     assert player.errors[:profile_picture].any?
   end

@@ -15,7 +15,8 @@
 
       <div class="flex items-center gap-1 flex-shrink-0">
         <% if location.latitude.present? && location.longitude.present? %>
-          <%= link_to "https://www.openstreetmap.org/?mlat=#{location.latitude}&mlon=#{location.longitude}",
+          <% map_query = { mlat: location.latitude.to_s("F"), mlon: location.longitude.to_s("F") }.to_query %>
+          <%= link_to "https://www.openstreetmap.org/?#{map_query}",
               target: "_blank", rel: "noopener noreferrer",
               title: "View on map",
               class: "p-1.5 rounded text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" do %>
