@@ -19,11 +19,15 @@ export default class extends Controller {
 
   applyView(view) {
     const isGrid = view === "grid"
-    this.gridViewTarget.classList.toggle("hidden", !isGrid)
-    this.tableViewTarget.classList.toggle("hidden", isGrid)
-    this.gridBtnTarget.classList.toggle("text-indigo-600", isGrid)
-    this.gridBtnTarget.classList.toggle("dark:text-indigo-400", isGrid)
-    this.tableBtnTarget.classList.toggle("text-indigo-600", !isGrid)
-    this.tableBtnTarget.classList.toggle("dark:text-indigo-400", !isGrid)
+    if (this.hasGridViewTarget) this.gridViewTarget.classList.toggle("hidden", !isGrid)
+    if (this.hasTableViewTarget) this.tableViewTarget.classList.toggle("hidden", isGrid)
+    if (this.hasGridBtnTarget) {
+      this.gridBtnTarget.classList.toggle("text-indigo-600", isGrid)
+      this.gridBtnTarget.classList.toggle("dark:text-indigo-400", isGrid)
+    }
+    if (this.hasTableBtnTarget) {
+      this.tableBtnTarget.classList.toggle("text-indigo-600", !isGrid)
+      this.tableBtnTarget.classList.toggle("dark:text-indigo-400", !isGrid)
+    }
   }
 }
