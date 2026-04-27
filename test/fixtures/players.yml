@@ -1,0 +1,9 @@
+alice:
+  name: Alice
+  created_at: <%= 2.days.ago.iso8601 %>
+  updated_at: <%= 2.days.ago.iso8601 %>
+
+bob:
+  name: Bob
+  created_at: <%= 1.day.ago.iso8601 %>
+  updated_at: <%= 1.day.ago.iso8601 %>

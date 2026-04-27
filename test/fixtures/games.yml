@@ -1,0 +1,11 @@
+chess:
+  name: Chess
+  bgg_url: https://boardgamegeek.com/boardgame/171/chess
+  created_at: <%= 1.week.ago.iso8601 %>
+  updated_at: <%= 1.week.ago.iso8601 %>
+
+catan:
+  name: Catan
+  bgg_url: ""
+  created_at: <%= 3.days.ago.iso8601 %>
+  updated_at: <%= 3.days.ago.iso8601 %>
