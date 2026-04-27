@@ -6,7 +6,7 @@ class Player < ApplicationRecord
 
   validates :name, presence: true
   validates :profile_picture,
-            square_image: true,
             content_type: { in: ALLOWED_TYPES, message: "must be a JPEG, PNG, or WebP" },
-            size: { less_than: MAX_BYTES, message: "must be less than 5 MB" }
+            size: { less_than: MAX_BYTES, message: "must be less than 5 MB" },
+            square_image: true
 end
