@@ -11,6 +11,8 @@
 
 ## Local setup
 
+**System dependency:** `libvips` must be installed for Active Storage image analysis (used by the square-image validator and image variants). On Fedora: `sudo dnf install vips`. On Debian/Ubuntu: `sudo apt install libvips`. The Dockerfile installs it automatically.
+
 ```bash
 bundle install
 rails credentials:edit   # set app_password, secret_key_base

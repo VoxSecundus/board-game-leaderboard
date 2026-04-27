@@ -12,3 +12,14 @@ module ActiveSupport
     fixtures :all
   end
 end
+
+module AuthHelper
+  def log_in
+    SessionsController.any_instance.stubs(:valid_password?).returns(true)
+    post login_path, params: { password: "anything" }
+  end
+end
+
+class ActionDispatch::IntegrationTest
+  include AuthHelper
+end

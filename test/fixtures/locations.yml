@@ -1,0 +1,11 @@
+living_room:
+  name: Living Room
+  created_at: <%= 1.week.ago.iso8601 %>
+  updated_at: <%= 1.week.ago.iso8601 %>
+
+london:
+  name: London
+  latitude: 51.507400
+  longitude: -0.127800
+  created_at: <%= 2.days.ago.iso8601 %>
+  updated_at: <%= 2.days.ago.iso8601 %>

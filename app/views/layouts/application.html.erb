@@ -23,11 +23,11 @@
           <div class="flex items-center justify-between h-16">
             <div class="flex items-center gap-6">
               <%= link_to "BGL", root_path, class: "text-lg font-bold text-indigo-600 dark:text-indigo-400 mr-4" %>
-              <%= link_to "Players",   "#", class: "text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" %>
-              <%= link_to "Games",     "#", class: "text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" %>
-              <%= link_to "Locations", "#", class: "text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" %>
-              <%= link_to "Plays",     "#", class: "text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" %>
-              <%= link_to "Compare",   "#", class: "text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" %>
+              <%= link_to "Players",   players_path,   class: "text-sm font-medium transition-colors #{request.path.start_with?('/players')   ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'}" %>
+              <%= link_to "Games",     games_path,     class: "text-sm font-medium transition-colors #{request.path.start_with?('/games')     ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'}" %>
+              <%= link_to "Locations", locations_path, class: "text-sm font-medium transition-colors #{request.path.start_with?('/locations') ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'}" %>
+              <%= link_to "Plays",     "#",            class: "text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" %>
+              <%= link_to "Compare",   "#",            class: "text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" %>
             </div>
             <div class="flex items-center gap-3">
               <button data-action="dark-mode#toggle"

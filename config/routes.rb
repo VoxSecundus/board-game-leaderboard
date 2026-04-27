@@ -3,6 +3,10 @@ Rails.application.routes.draw do
   post "login",  to: "sessions#create"
   delete "logout", to: "sessions#destroy", as: :logout
 
+  resources :players
+  resources :games
+  resources :locations
+
   get "up" => "rails/health#show", as: :rails_health_check
 
   root "dashboard#index"
