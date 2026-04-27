@@ -14,9 +14,10 @@
       <div class="min-w-0">
         <%= link_to game.name, game_path(game),
             class: "text-base font-bold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 leading-tight" %>
-        <% if game.bgg_url.present? %>
+        <% bgg = safe_external_url(game.bgg_url) %>
+        <% if bgg %>
           <p class="mt-1">
-            <%= link_to "BoardGameGeek", game.bgg_url,
+            <%= link_to "BoardGameGeek", bgg,
                 target: "_blank", rel: "noopener noreferrer",
                 class: "text-xs text-indigo-600 dark:text-indigo-400 hover:underline" %>
           </p>

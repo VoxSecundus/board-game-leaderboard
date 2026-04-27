@@ -37,6 +37,13 @@ module ApplicationHelper
       class: "text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
   end
 
+  def safe_external_url(url)
+    uri = URI.parse(url.to_s)
+    %w[http https].include?(uri.scheme) ? uri.to_s : nil
+  rescue URI::InvalidURIError
+    nil
+  end
+
   def breadcrumbs(*items)
     content_for :breadcrumbs do
       safe_join(
