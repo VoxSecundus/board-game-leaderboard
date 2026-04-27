@@ -1,7 +1,7 @@
 module ApplicationHelper
   def sortable_link(column, label)
     current_sort = params[:sort]
-    current_dir  = params[:dir]
+    current_dir  = %w[asc desc].include?(params[:dir]) ? params[:dir] : "asc"
     is_active    = current_sort == column
     new_dir      = is_active && current_dir == "asc" ? "desc" : "asc"
     indicator    = is_active ? (current_dir == "asc" ? " ▲" : " ▼") : ""
