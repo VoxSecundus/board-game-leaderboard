@@ -1,0 +1,7 @@
+<% content_for :title, "Record Play" %>
+<% breadcrumbs(["Home", root_path], ["Plays", plays_path], ["Record Play", nil]) %>
+
+<div class="max-w-2xl">
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Record Play</h1>
+  <%= render "form", play: @play %>
+</div>

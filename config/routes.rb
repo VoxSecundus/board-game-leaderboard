@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   resources :players
   resources :games
   resources :locations
+  resources :plays
 
   get "up" => "rails/health#show", as: :rails_health_check
 

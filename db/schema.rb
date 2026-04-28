@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_27_115107) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_28_173342) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -54,12 +54,49 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_27_115107) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "play_participants", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "play_id", null: false
+    t.integer "player_id", null: false
+    t.integer "score"
+    t.datetime "updated_at", null: false
+    t.boolean "winner", default: false, null: false
+    t.index ["play_id"], name: "index_play_participants_on_play_id"
+    t.index ["player_id"], name: "index_play_participants_on_player_id"
+  end
+
   create_table "players", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
     t.datetime "updated_at", null: false
   end
 
+  create_table "plays", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.date "date"
+    t.integer "game_id", null: false
+    t.integer "location_id"
+    t.text "notes"
+    t.datetime "updated_at", null: false
+    t.index ["game_id"], name: "index_plays_on_game_id"
+    t.index ["location_id"], name: "index_plays_on_location_id"
+  end
+
+  create_table "versions", force: :cascade do |t|
+    t.datetime "created_at"
+    t.string "event", null: false
+    t.bigint "item_id", null: false
+    t.string "item_type", null: false
+    t.text "object", limit: 1073741823
+    t.text "object_changes", limit: 1073741823
+    t.string "whodunnit"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "play_participants", "players"
+  add_foreign_key "play_participants", "plays"
+  add_foreign_key "plays", "games"
+  add_foreign_key "plays", "locations"
 end

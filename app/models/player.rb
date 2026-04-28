@@ -1,5 +1,6 @@
 class Player < ApplicationRecord
   has_one_attached :profile_picture
+  has_many :play_participants, dependent: :destroy
 
   ALLOWED_TYPES = %w[image/jpeg image/png image/webp].freeze
   MAX_BYTES = 5.megabytes
