@@ -45,7 +45,7 @@
             <%= pf.hidden_field :id %>
             <%= pf.hidden_field :_destroy, value: false %>
             <div class="flex-1">
-              <%= pf.collection_select :player_id, Player.order(:name), :id, :name,
+              <%= pf.collection_select :player_id, players, :id, :name,
                   { include_blank: "— Player —" },
                   class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
             </div>
@@ -76,7 +76,7 @@
           <select name="play[play_participants_attributes][NEW_RECORD][player_id]"
                   class="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
             <option value="">— Player —</option>
-            <% Player.order(:name).each do |player| %>
+            <% players.each do |player| %>
               <option value="<%= player.id %>"><%= player.name %></option>
             <% end %>
           </select>

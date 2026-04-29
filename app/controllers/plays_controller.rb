@@ -10,6 +10,7 @@ class PlaysController < ApplicationController
   def new
     @play = Play.new
     @play.play_participants.build
+    @players = Player.order(:name)
   end
 
   def create
@@ -17,16 +18,20 @@ class PlaysController < ApplicationController
     if @play.save
       redirect_to @play, notice: "Play recorded."
     else
+      @players = Player.order(:name)
       render :new, status: :unprocessable_entity
     end
   end
 
-  def edit; end
+  def edit
+    @players = Player.order(:name)
+  end
 
   def update
     if @play.update(play_params)
       redirect_to @play, notice: "Play updated."
     else
+      @players = Player.order(:name)
       render :edit, status: :unprocessable_entity
     end
   end
@@ -50,11 +55,12 @@ class PlaysController < ApplicationController
   SORTABLE_COLUMNS = %w[date created_at].freeze
 
   def sorted_plays
+    scope = Play.includes(:game, :location, play_participants: :player)
     if params[:sort] == "game"
       dir = %w[asc desc].include?(params[:dir]) ? params[:dir] : "asc"
-      Play.joins(:game).order("games.name #{dir}")
+      scope.joins(:game).order("games.name #{dir}")
     else
-      Play.order(sort_column => sort_direction)
+      scope.order(sort_column => sort_direction)
     end
   end
 
