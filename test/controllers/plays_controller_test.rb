@@ -21,6 +21,23 @@ class PlaysControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "GET /plays sorts by date asc" do
+    get plays_path, params: { sort: "date", dir: "asc" }
+    # chess_night (1 week ago) is older than catan_night (3 days ago)
+    assert_operator response.body.index("Chess"), :<, response.body.index("Catan")
+  end
+
+  test "GET /plays sorts by date desc" do
+    get plays_path, params: { sort: "date", dir: "desc" }
+    assert_operator response.body.index("Catan"), :<, response.body.index("Chess")
+  end
+
+  test "GET /plays sorts by game name asc" do
+    get plays_path, params: { sort: "game", dir: "asc" }
+    # Catan < Chess alphabetically
+    assert_operator response.body.index("Catan"), :<, response.body.index("Chess")
+  end
+
   test "GET /plays with SQL injection sort param returns 200 without crashing" do
     get plays_path, params: { sort: "1; DROP TABLE plays--" }
     assert_response :success

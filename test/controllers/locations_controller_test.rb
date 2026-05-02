@@ -16,6 +16,17 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "GET /locations sorts by name asc" do
+    get locations_path, params: { sort: "name", dir: "asc" }
+    # "Living Room" < "London" alphabetically (Li < Lo)
+    assert_operator response.body.index("Living Room"), :<, response.body.index("London")
+  end
+
+  test "GET /locations sorts by name desc" do
+    get locations_path, params: { sort: "name", dir: "desc" }
+    assert_operator response.body.index("London"), :<, response.body.index("Living Room")
+  end
+
   test "GET /locations with invalid sort param returns 200 without crashing" do
     get locations_path, params: { sort: "1; DROP TABLE locations--" }
     assert_response :success
