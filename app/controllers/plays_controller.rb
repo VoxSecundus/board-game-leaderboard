@@ -3,6 +3,7 @@ class PlaysController < ApplicationController
 
   def index
     @plays = sorted_plays
+    @no_games = !Game.exists?
   end
 
   def show; end
