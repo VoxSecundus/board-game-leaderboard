@@ -1,5 +1,6 @@
 class Game < ApplicationRecord
   has_one_attached :box_art
+  has_many :plays, dependent: :destroy
 
   ALLOWED_TYPES = %w[image/jpeg image/png image/webp].freeze
   MAX_BYTES = 5.megabytes

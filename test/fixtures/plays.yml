@@ -1,0 +1,14 @@
+chess_night:
+  game: chess
+  location: living_room
+  date: <%= 1.week.ago.to_date %>
+  notes: Great game
+  created_at: <%= 1.week.ago.iso8601 %>
+  updated_at: <%= 1.week.ago.iso8601 %>
+
+catan_night:
+  game: catan
+  date: <%= 3.days.ago.to_date %>
+  notes: ""
+  created_at: <%= 3.days.ago.iso8601 %>
+  updated_at: <%= 3.days.ago.iso8601 %>

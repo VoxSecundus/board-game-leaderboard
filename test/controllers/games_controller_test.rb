@@ -16,6 +16,16 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "GET /games sorts by name asc" do
+    get games_path, params: { sort: "name", dir: "asc" }
+    assert_operator response.body.index("Catan"), :<, response.body.index("Chess")
+  end
+
+  test "GET /games sorts by name desc" do
+    get games_path, params: { sort: "name", dir: "desc" }
+    assert_operator response.body.index("Chess"), :<, response.body.index("Catan")
+  end
+
   test "GET /games with invalid sort param returns 200 without crashing" do
     get games_path, params: { sort: "1; DROP TABLE games--" }
     assert_response :success
@@ -72,5 +82,10 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     delete logout_path
     get games_path
     assert_redirected_to login_path
+  end
+
+  test "GET /games/:id shows BGG link when bgg_url is set" do
+    get game_path(games(:chess))
+    assert_select "a", /BoardGameGeek/
   end
 end

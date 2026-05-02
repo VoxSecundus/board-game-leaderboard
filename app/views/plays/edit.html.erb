@@ -1,0 +1,7 @@
+<% content_for :title, "Edit Play" %>
+<% breadcrumbs(["Home", root_path], ["Plays", plays_path], [@play.date&.strftime("%d %b %Y") || "Play ##{@play.id}", play_path(@play)], ["Edit", nil]) %>
+
+<div class="max-w-2xl">
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Edit Play</h1>
+  <%= render "form", play: @play, games: @games, locations: @locations, players: @players %>
+</div>

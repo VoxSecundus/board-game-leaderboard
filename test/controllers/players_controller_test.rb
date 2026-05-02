@@ -16,6 +16,16 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "GET /players sorts by name asc" do
+    get players_path, params: { sort: "name", dir: "asc" }
+    assert_operator response.body.index("Alice"), :<, response.body.index("Bob")
+  end
+
+  test "GET /players sorts by name desc" do
+    get players_path, params: { sort: "name", dir: "desc" }
+    assert_operator response.body.index("Bob"), :<, response.body.index("Alice")
+  end
+
   test "GET /players with invalid sort param returns 200 without crashing" do
     get players_path, params: { sort: "injected; DROP TABLE players--", dir: "asc" }
     assert_response :success

@@ -1,0 +1,116 @@
+<%= render "shared/errors", record: play %>
+
+<%= form_with model: play, class: "space-y-6" do |f| %>
+  <div>
+    <%= f.label :game_id, "Game", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+    <%= f.collection_select :game_id, games, :id, :name,
+        { include_blank: "— Select a game —" },
+        class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+  </div>
+
+  <div>
+    <%= f.label :date, "Date", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+    <%= f.date_field :date,
+        class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Optional</p>
+  </div>
+
+  <div>
+    <%= f.label :location_id, "Location", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+    <%= f.collection_select :location_id, locations, :id, :name,
+        { include_blank: "— None —" },
+        class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+  </div>
+
+  <div>
+    <%= f.label :notes, "Notes", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+    <%= f.text_area :notes, rows: 3,
+        class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+  </div>
+
+  <div data-controller="play-form">
+    <div class="flex items-center justify-between mb-3">
+      <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Participants</p>
+      <button type="button"
+              data-action="play-form#addParticipant"
+              class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+        + Add Participant
+      </button>
+    </div>
+
+    <div data-play-form-target="participants" class="space-y-2">
+      <% play.play_participants.each do |pp| %>
+        <div data-play-form-target="row" class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
+          <%= f.fields_for :play_participants, pp do |pf| %>
+            <%= pf.hidden_field :id %>
+            <%= pf.hidden_field :_destroy, value: false %>
+            <div class="flex-1">
+              <%= pf.collection_select :player_id, players, :id, :name,
+                  { include_blank: "— Player —" },
+                  class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+            </div>
+            <div class="w-24">
+              <%= pf.number_field :score, placeholder: "Score",
+                  class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+            </div>
+            <label class="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">
+              <%= pf.check_box :winner, class: "rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>
+              Winner
+            </label>
+          <% end %>
+          <button type="button"
+                  data-action="play-form#removeParticipant"
+                  class="p-1.5 rounded text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex-shrink-0"
+                  title="Remove">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      <% end %>
+    </div>
+
+    <template data-play-form-target="template">
+      <div data-play-form-target="row" class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 mt-2">
+        <div class="flex-1">
+          <select name="play[play_participants_attributes][NEW_RECORD][player_id]"
+                  class="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+            <option value="">— Player —</option>
+            <% players.each do |player| %>
+              <option value="<%= player.id %>"><%= player.name %></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="w-24">
+          <input type="number"
+                 name="play[play_participants_attributes][NEW_RECORD][score]"
+                 placeholder="Score"
+                 class="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+        </div>
+        <label class="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">
+          <input type="checkbox"
+                 name="play[play_participants_attributes][NEW_RECORD][winner]"
+                 value="1"
+                 class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+          Winner
+        </label>
+        <button type="button"
+                data-action="play-form#removeParticipant"
+                class="p-1.5 rounded text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex-shrink-0"
+                title="Remove">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </template>
+  </div>
+
+  <div class="flex items-center gap-3">
+    <%= f.submit play.new_record? ? "Record Play" : "Update Play",
+        class: "rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 px-4 transition-colors cursor-pointer" %>
+    <%= link_to "Cancel",
+        play.new_record? ? plays_path : play_path(play),
+        class: "text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" %>
+  </div>
+<% end %>

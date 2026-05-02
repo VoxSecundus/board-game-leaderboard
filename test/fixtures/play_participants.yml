@@ -1,0 +1,23 @@
+alice_chess:
+  play: chess_night
+  player: alice
+  score: 10
+  winner: true
+  created_at: <%= 1.week.ago.iso8601 %>
+  updated_at: <%= 1.week.ago.iso8601 %>
+
+bob_chess:
+  play: chess_night
+  player: bob
+  score: 5
+  winner: false
+  created_at: <%= 1.week.ago.iso8601 %>
+  updated_at: <%= 1.week.ago.iso8601 %>
+
+alice_catan:
+  play: catan_night
+  player: alice
+  score:
+  winner: false
+  created_at: <%= 3.days.ago.iso8601 %>
+  updated_at: <%= 3.days.ago.iso8601 %>
