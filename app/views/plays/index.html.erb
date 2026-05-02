@@ -9,7 +9,11 @@
 <% if @plays.empty? %>
   <div class="text-center py-16 text-gray-500 dark:text-gray-400">
     <p class="text-lg mb-4">No plays recorded yet.</p>
-    <%= link_to "Record the first play", new_play_path, class: "text-indigo-600 dark:text-indigo-400 hover:underline" %>
+    <% if @no_games %>
+      <p>Create a game before recording a play.</p>
+    <% else %>
+      <%= link_to "Record the first play", new_play_path, class: "text-indigo-600 dark:text-indigo-400 hover:underline" %>
+    <% end %>
   </div>
 <% else %>
   <div class="overflow-x-auto">
