@@ -11,6 +11,8 @@ class PlaysController < ApplicationController
     @play = Play.new
     @play.play_participants.build
     @players = Player.order(:name)
+    @games = Game.order(:name)
+    @locations = Location.order(:name)
   end
 
   def create
@@ -19,12 +21,16 @@ class PlaysController < ApplicationController
       redirect_to @play, notice: "Play recorded."
     else
       @players = Player.order(:name)
+      @games = Game.order(:name)
+      @locations = Location.order(:name)
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
     @players = Player.order(:name)
+    @games = Game.order(:name)
+    @locations = Location.order(:name)
   end
 
   def update
@@ -32,6 +38,8 @@ class PlaysController < ApplicationController
       redirect_to @play, notice: "Play updated."
     else
       @players = Player.order(:name)
+      @games = Game.order(:name)
+      @locations = Location.order(:name)
       render :edit, status: :unprocessable_entity
     end
   end
