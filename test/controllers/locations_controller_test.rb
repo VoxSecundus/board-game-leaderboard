@@ -97,4 +97,9 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
     get locations_path
     assert_redirected_to login_path
   end
+
+  test "GET /locations/:id shows map link when coordinates are present" do
+    get location_path(locations(:london))
+    assert_select "a", "View on map"
+  end
 end

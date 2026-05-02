@@ -11,6 +11,12 @@ class PlaysControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "GET /plays with no games shows disabled Record Play button" do
+    Game.destroy_all
+    get plays_path
+    assert_select "button[disabled]", text: /Record Play/
+  end
+
   test "GET /plays with date sort returns 200" do
     get plays_path, params: { sort: "date", dir: "asc" }
     assert_response :success
@@ -175,5 +181,23 @@ class PlaysControllerTest < ActionDispatch::IntegrationTest
     delete logout_path
     get plays_path
     assert_redirected_to login_path
+  end
+
+  test "updated participant score appears on show page" do
+    participant = play_participants(:alice_chess)
+    patch play_path(@play), params: {
+      play: { play_participants_attributes: { "0" => { id: participant.id, player_id: participant.player_id, score: 42, winner: "1" } } }
+    }
+    follow_redirect!
+    assert_select "td", "42"
+  end
+
+  test "winner star appears on show page after being set" do
+    participant = play_participants(:bob_chess)
+    patch play_path(@play), params: {
+      play: { play_participants_attributes: { "0" => { id: participant.id, player_id: participant.player_id, winner: "1" } } }
+    }
+    follow_redirect!
+    assert_match(/★/, response.body)
   end
 end

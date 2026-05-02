@@ -83,4 +83,9 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     get games_path
     assert_redirected_to login_path
   end
+
+  test "GET /games/:id shows BGG link when bgg_url is set" do
+    get game_path(games(:chess))
+    assert_select "a", /BoardGameGeek/
+  end
 end

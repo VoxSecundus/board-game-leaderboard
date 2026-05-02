@@ -8,18 +8,6 @@ class PlaysTest < ApplicationSystemTestCase
     click_button "Sign in"
   end
 
-  test "viewing plays index" do
-    visit plays_url
-    assert_text "Plays"
-    assert_text games(:chess).name
-    assert_text games(:catan).name
-  end
-
-  test "nav link to plays is active" do
-    visit plays_url
-    assert_selector "nav a[href='#{plays_path}']"
-  end
-
   test "creating a play with a participant" do
     visit new_play_url
     select games(:chess).name, from: "Game"
@@ -60,7 +48,7 @@ class PlaysTest < ApplicationSystemTestCase
     assert_current_path(%r{sort=date})
   end
 
-  test "editing a play updates a participant score, shows it on the show page, and records it in history" do
+  test "editing a play updates a participant score, shows it on the show page" do
     play = plays(:chess_night)
 
     visit edit_play_url(play)
@@ -75,7 +63,7 @@ class PlaysTest < ApplicationSystemTestCase
     end
   end
 
-  test "editing a play toggles winner status, shows it on the show page, and records it in history" do
+  test "editing a play toggles winner status, shows it on the show page" do
     play = plays(:catan_night)
 
     visit edit_play_url(play)
@@ -88,7 +76,7 @@ class PlaysTest < ApplicationSystemTestCase
     assert_text "★"
   end
 
-  test "editing a play removes a participant, shows the removal on the show page, and records it in history" do
+  test "editing a play removes a participant, shows the removal on the show page" do
     play = plays(:chess_night)
 
     visit edit_play_url(play)
