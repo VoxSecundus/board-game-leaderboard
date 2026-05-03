@@ -1,9 +1,10 @@
 # syntax=docker/dockerfile:1
 # check=error=true
 
-# This Dockerfile is designed for production, not development. Use with Kamal or build'n'run by hand:
-# docker build -t board_game_leaderboard .
-# docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name board_game_leaderboard board_game_leaderboard
+# This Dockerfile is designed for production, not development.
+# Images are built and pushed to Docker Hub automatically on merge to master.
+# To run: copy docker-compose.yml and create a .env file with APP_PASSWORD, then:
+#   docker compose pull && docker compose up -d
 
 # For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
 
