@@ -1,11 +1,18 @@
 class PlayersController < ApplicationController
+  include HistorySortable
+
   before_action :set_player, only: %i[show edit update destroy]
 
   def index
     @players = Player.order(sort_column => sort_direction)
   end
 
-  def show; end
+  def show
+    @plays = history_sorted(
+      Play.where(id: @player.play_participants.select(:play_id))
+          .includes(:game, :location, play_participants: :player)
+    )
+  end
 
   def new
     @player = Player.new

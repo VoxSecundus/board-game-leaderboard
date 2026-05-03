@@ -1,0 +1,98 @@
+<% content_for :title, "Compare Players" %>
+<% breadcrumbs(["Home", root_path], ["Compare", nil]) %>
+
+<div class="max-w-4xl">
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Player Comparison</h1>
+
+  <%= form_with url: compare_path, method: :get, data: { turbo_frame: "results" },
+      class: "bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6" do |f| %>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+      <div>
+        <label for="player1_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Player 1</label>
+        <%= select_tag :player1_id,
+            options_from_collection_for_select(@all_players, :id, :name, params[:player1_id]),
+            include_blank: "— Select a player —",
+            class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+      </div>
+      <div>
+        <label for="player2_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Player 2</label>
+        <%= select_tag :player2_id,
+            options_from_collection_for_select(@all_players, :id, :name, params[:player2_id]),
+            include_blank: "— Select a player —",
+            class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+      </div>
+      <div>
+        <label for="game_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by game</label>
+        <%= select_tag :game_id,
+            options_from_collection_for_select(@all_games, :id, :name, params[:game_id]),
+            include_blank: "— All games —",
+            class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+      </div>
+    </div>
+
+    <%= submit_tag "Compare",
+        class: "px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors cursor-pointer" %>
+  <% end %>
+
+  <%= turbo_frame_tag "results" do %>
+    <% if @same_player_error %>
+      <p class="text-sm text-red-600 dark:text-red-400"><%= @same_player_error %></p>
+    <% elsif @stats %>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <%= @player1.name %> vs <%= @player2.name %>
+        </h2>
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <p class="text-3xl font-bold text-green-600 dark:text-green-400"><%= @stats.wins_p1 %></p>
+            <p class="text-sm text-gray-500 dark:text-gray-400"><%= @player1.name %> wins</p>
+          </div>
+          <div>
+            <p class="text-3xl font-bold text-gray-500 dark:text-gray-400"><%= @stats.draws %></p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Draws</p>
+          </div>
+          <div>
+            <p class="text-3xl font-bold text-red-600 dark:text-red-400"><%= @stats.losses_p1 %></p>
+            <p class="text-sm text-gray-500 dark:text-gray-400"><%= @player2.name %> wins</p>
+          </div>
+        </div>
+      </div>
+
+      <% if @stats.per_game.any? %>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+          <h3 class="text-base font-semibold text-gray-900 dark:text-white p-6 pb-4">Per-game breakdown</h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead class="bg-gray-50 dark:bg-gray-800">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Game</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"><%= @player1.name %> wins</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Draws</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"><%= @player2.name %> wins</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                <% @stats.per_game.each do |entry| %>
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                      <%= link_to entry[:game].name, game_path(entry[:game]),
+                          class: "font-medium text-indigo-600 dark:text-indigo-400 hover:underline",
+                          data: { turbo_frame: "_top" } %>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"><%= entry[:wins_p1] %></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"><%= entry[:draws] %></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"><%= entry[:losses_p1] %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% else %>
+        <p class="text-sm text-gray-500 dark:text-gray-400">No shared plays found.</p>
+      <% end %>
+    <% else %>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Select two players above to see their head-to-head record.</p>
+    <% end %>
+  <% end %>
+</div>

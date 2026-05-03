@@ -21,3 +21,27 @@ alice_catan:
   winner: false
   created_at: <%= 3.days.ago.iso8601 %>
   updated_at: <%= 3.days.ago.iso8601 %>
+
+alice_catan_rematch:
+  play: catan_rematch
+  player: alice
+  score: 6
+  winner: false
+  created_at: <%= 2.weeks.ago.iso8601 %>
+  updated_at: <%= 2.weeks.ago.iso8601 %>
+
+bob_catan_rematch:
+  play: catan_rematch
+  player: bob
+  score: 10
+  winner: true
+  created_at: <%= 2.weeks.ago.iso8601 %>
+  updated_at: <%= 2.weeks.ago.iso8601 %>
+
+bob_chess_2:
+  play: chess_night_2
+  player: bob
+  score: 8
+  winner: true
+  created_at: <%= 2.days.ago.iso8601 %>
+  updated_at: <%= 2.days.ago.iso8601 %>

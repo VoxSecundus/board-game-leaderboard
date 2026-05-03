@@ -8,6 +8,8 @@ Rails.application.routes.draw do
   resources :locations
   resources :plays
 
+  get "compare", to: "comparisons#show", as: :compare
+
   get "up" => "rails/health#show", as: :rails_health_check
 
   root "dashboard#index"

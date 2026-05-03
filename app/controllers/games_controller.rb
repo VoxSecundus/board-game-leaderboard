@@ -1,11 +1,17 @@
 class GamesController < ApplicationController
+  include HistorySortable
+
   before_action :set_game, only: %i[show edit update destroy]
 
   def index
     @games = Game.order(sort_column => sort_direction)
   end
 
-  def show; end
+  def show
+    @plays = history_sorted(
+      @game.plays.includes(:location, play_participants: :player)
+    )
+  end
 
   def new
     @game = Game.new

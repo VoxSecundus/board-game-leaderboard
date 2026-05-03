@@ -7,3 +7,8 @@ bob:
   name: Bob
   created_at: <%= 1.day.ago.iso8601 %>
   updated_at: <%= 1.day.ago.iso8601 %>
+
+newcomer:
+  name: Newcomer
+  created_at: <%= 1.day.ago.iso8601 %>
+  updated_at: <%= 1.day.ago.iso8601 %>

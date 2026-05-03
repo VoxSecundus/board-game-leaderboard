@@ -1,0 +1,47 @@
+<% show_game = local_assigns.fetch(:show_game, false) %>
+<% highlight_player = local_assigns[:highlight_player] %>
+<% pps = play.play_participants.to_a %>
+<% row_class = if highlight_player
+  my_pp      = pps.find { |pp| pp.player_id == highlight_player.id }
+  anyone_won = pps.any?(&:winner?)
+  if my_pp&.winner?
+    "bg-green-50 dark:bg-green-900/20"
+  elsif anyone_won
+    "bg-red-50 dark:bg-red-900/20"
+  else
+    ""
+  end
+else
+  ""
+end %>
+<tr class="<%= row_class %>">
+  <td class="px-6 py-4 whitespace-nowrap text-sm">
+    <%= link_to play.date&.strftime("%d %b %Y") || "—", play_path(play),
+        class: "font-medium text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400" %>
+  </td>
+  <% if show_game %>
+    <td class="px-6 py-4 whitespace-nowrap text-sm">
+      <%= link_to play.game.name, game_path(play.game),
+          class: "font-medium text-indigo-600 dark:text-indigo-400 hover:underline" %>
+    </td>
+  <% end %>
+  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+    <%= play.location&.name || "—" %>
+  </td>
+  <td class="px-6 py-4 text-sm">
+    <div class="flex flex-wrap items-center gap-2">
+      <% pps.each do |pp| %>
+        <span class="<%= pp.winner? ? 'rounded-full ring-2 ring-amber-500 ring-offset-1 ring-offset-white dark:ring-offset-gray-900' : '' %>"
+              title="<%= pp.winner? ? 'Winner' : '' %>">
+          <%= player_avatar(pp.player) %>
+        </span>
+      <% end %>
+    </div>
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+    <%= pps.select(&:winner?).map { |pp| pp.player.name }.join(", ").presence || "—" %>
+  </td>
+  <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+    <%= play.notes.presence %>
+  </td>
+</tr>

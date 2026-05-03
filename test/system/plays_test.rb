@@ -1,12 +1,7 @@
 require "application_system_test_case"
 
 class PlaysTest < ApplicationSystemTestCase
-  setup do
-    SessionsController.any_instance.stubs(:valid_password?).returns(true)
-    visit login_url
-    fill_in "Password", with: "anything"
-    click_button "Sign in"
-  end
+  setup { log_in_via_browser }
 
   test "creating a play with a participant" do
     visit new_play_url
