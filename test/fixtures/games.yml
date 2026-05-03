@@ -9,3 +9,9 @@ catan:
   bgg_url: ""
   created_at: <%= 3.days.ago.iso8601 %>
   updated_at: <%= 3.days.ago.iso8601 %>
+
+monopoly:
+  name: Monopoly
+  bgg_url: ""
+  created_at: <%= 1.day.ago.iso8601 %>
+  updated_at: <%= 1.day.ago.iso8601 %>

@@ -83,4 +83,54 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     get players_path
     assert_redirected_to login_path
   end
+
+  test "GET /players/:id shows Play History section" do
+    get player_path(@player)
+    assert_response :success
+    assert_select "h2", /Play History/
+  end
+
+  test "GET /players/:id shows game link in history table" do
+    get player_path(@player)
+    assert_select "tbody tr", minimum: 1
+    assert_select "td a", /Chess/
+  end
+
+  test "GET /players/:id sorts plays by date desc" do
+    # chess_night (1.week.ago, "Great game") is more recent than catan_rematch (2.weeks.ago, "...revenge")
+    get player_path(@player), params: { sort: "date", dir: "desc" }
+    assert_operator response.body.index("Great game"), :<, response.body.index("revenge")
+  end
+
+  test "GET /players/:id sorts plays by date asc" do
+    # catan_rematch (2.weeks.ago) is oldest, so "revenge" appears before "Great game"
+    get player_path(@player), params: { sort: "date", dir: "asc" }
+    assert_operator response.body.index("revenge"), :<, response.body.index("Great game")
+  end
+
+  test "GET /players/:id with sort=location and dir=asc returns 200" do
+    get player_path(@player), params: { sort: "location", dir: "asc" }
+    assert_response :success
+  end
+
+  test "GET /players/:id with sort=location and dir=desc returns 200" do
+    get player_path(@player), params: { sort: "location", dir: "desc" }
+    assert_response :success
+  end
+
+  test "GET /players/:id with invalid sort dir defaults gracefully" do
+    get player_path(@player), params: { sort: "date", dir: "invalid" }
+    assert_response :success
+  end
+
+  test "GET /players/:id with invalid sort param returns 200 without crashing" do
+    get player_path(@player), params: { sort: "injected; DROP TABLE plays--" }
+    assert_response :success
+  end
+
+  test "GET /players/:id shows empty state when player has no plays" do
+    get player_path(players(:newcomer))
+    assert_response :success
+    assert_select "p", /No plays recorded/
+  end
 end

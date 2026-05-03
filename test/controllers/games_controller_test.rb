@@ -88,4 +88,54 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     get game_path(games(:chess))
     assert_select "a", /BoardGameGeek/
   end
+
+  test "GET /games/:id shows Play History section" do
+    get game_path(games(:chess))
+    assert_response :success
+    assert_select "h2", /Play History/
+  end
+
+  test "GET /games/:id shows play notes in history table" do
+    get game_path(games(:chess))
+    assert_select "tbody tr", minimum: 1
+    assert_select "td", /Great game/
+  end
+
+  test "GET /games/:id sorts plays by date asc" do
+    # chess_night is 1.week.ago ("Great game"); chess_night_2 is 2.days.ago ("Second chess game")
+    get game_path(games(:chess)), params: { sort: "date", dir: "asc" }
+    assert_operator response.body.index("Great game"), :<, response.body.index("Second chess game")
+  end
+
+  test "GET /games/:id sorts plays by date desc" do
+    get game_path(games(:chess)), params: { sort: "date", dir: "desc" }
+    assert_operator response.body.index("Second chess game"), :<, response.body.index("Great game")
+  end
+
+  test "GET /games/:id sorts plays by location asc" do
+    # chess_night is in Living Room; chess_night_2 is in London; "Li" < "Lo" alphabetically
+    get game_path(games(:chess)), params: { sort: "location", dir: "asc" }
+    assert_operator response.body.index("Great game"), :<, response.body.index("Second chess game")
+  end
+
+  test "GET /games/:id sorts plays by location desc" do
+    get game_path(games(:chess)), params: { sort: "location", dir: "desc" }
+    assert_operator response.body.index("Second chess game"), :<, response.body.index("Great game")
+  end
+
+  test "GET /games/:id with invalid sort dir defaults gracefully" do
+    get game_path(games(:chess)), params: { sort: "date", dir: "invalid" }
+    assert_response :success
+  end
+
+  test "GET /games/:id with invalid sort param returns 200 without crashing" do
+    get game_path(games(:chess)), params: { sort: "1; DROP TABLE plays--" }
+    assert_response :success
+  end
+
+  test "GET /games/:id shows empty state when game has no plays" do
+    get game_path(games(:monopoly))
+    assert_response :success
+    assert_select "p", /No plays recorded/
+  end
 end
