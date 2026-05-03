@@ -1,6 +1,5 @@
 services:
   web:
-    build: .
     image: voxsecundus/board-game-leaderboard:latest
     ports:
       - "3000:80"
