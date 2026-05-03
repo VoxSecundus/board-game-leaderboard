@@ -1,6 +1,8 @@
 require "application_system_test_case"
 
 class GameHistoryTest < ApplicationSystemTestCase
+  setup { log_in_via_browser }
+
   test "game show page displays Play History section" do
     visit game_url(games(:chess))
     assert_text "Play History"

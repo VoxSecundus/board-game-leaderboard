@@ -27,7 +27,7 @@
               <%= link_to "Games",     games_path,     class: "text-sm font-medium transition-colors #{request.path.start_with?('/games')     ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'}" %>
               <%= link_to "Locations", locations_path, class: "text-sm font-medium transition-colors #{request.path.start_with?('/locations') ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'}" %>
               <%= link_to "Plays",     plays_path,     class: "text-sm font-medium transition-colors #{request.path.start_with?('/plays')     ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'}" %>
-              <%= link_to "Compare",   "#",            class: "text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" %>
+              <%= link_to "Compare", compare_path, class: "text-sm font-medium transition-colors #{request.path.start_with?('/compare') ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'}" %>
             </div>
             <div class="flex items-center gap-3">
               <button data-action="dark-mode#toggle"

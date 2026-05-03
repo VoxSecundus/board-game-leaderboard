@@ -29,13 +29,14 @@ class PlaysControllerTest < ActionDispatch::IntegrationTest
 
   test "GET /plays sorts by date asc" do
     get plays_path, params: { sort: "date", dir: "asc" }
-    # chess_night (1 week ago) is older than catan_night (3 days ago)
-    assert_operator response.body.index("Chess"), :<, response.body.index("Catan")
+    # catan_rematch (2.weeks.ago) is the oldest play, so Catan appears first
+    assert_operator response.body.index("Catan"), :<, response.body.index("Chess")
   end
 
   test "GET /plays sorts by date desc" do
     get plays_path, params: { sort: "date", dir: "desc" }
-    assert_operator response.body.index("Catan"), :<, response.body.index("Chess")
+    # chess_night_2 (2.days.ago) is the newest play, so Chess appears first
+    assert_operator response.body.index("Chess"), :<, response.body.index("Catan")
   end
 
   test "GET /plays sorts by game name asc" do

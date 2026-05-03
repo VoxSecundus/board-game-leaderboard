@@ -1,6 +1,8 @@
 require "application_system_test_case"
 
 class ComparisonsTest < ApplicationSystemTestCase
+  setup { log_in_via_browser }
+
   test "Compare nav link leads to player selector" do
     visit root_url
     click_link "Compare"

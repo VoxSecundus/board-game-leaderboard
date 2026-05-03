@@ -33,10 +33,12 @@ class ComparisonsControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame[id='results']"
   end
 
-  test "GET /compare with same player twice redirects to compare_path with alert" do
+  test "GET /compare with same player twice returns 422 with error in results frame" do
     get compare_path, params: { player1_id: @alice.id, player2_id: @alice.id }
-    assert_redirected_to compare_path
-    assert_equal "Select two different players to compare.", flash[:alert]
+    assert_response :unprocessable_entity
+    assert_select "turbo-frame[id='results']" do
+      assert_select "*", text: /two different players/
+    end
   end
 
   test "GET /compare with chess filter shows only chess in results" do
