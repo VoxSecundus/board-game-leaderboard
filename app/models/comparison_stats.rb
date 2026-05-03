@@ -1,10 +1,10 @@
 class ComparisonStats
   Result = Data.define(:wins_p1, :losses_p1, :draws, :per_game)
 
-  def initialize(player1, player2, game_ids = nil)
-    @player1  = player1
-    @player2  = player2
-    @game_ids = game_ids
+  def initialize(player1, player2, game_id = nil)
+    @player1 = player1
+    @player2 = player2
+    @game_id = game_id
   end
 
   def result
@@ -51,6 +51,6 @@ class ComparisonStats
     scope  = Play.where(id: p1_ids).where(id: p2_ids)
                  .includes(:game, play_participants: :player)
                  .order(date: :desc)
-    @game_ids.present? ? scope.where(game_id: @game_ids) : scope
+    @game_id ? scope.where(game_id: @game_id) : scope
   end
 end

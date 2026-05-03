@@ -16,7 +16,7 @@ class ComparisonsController < ApplicationController
 
     game_id = params[:game_id].presence&.to_i
     @selected_game_id = game_id&.positive? ? game_id : nil
-    @stats = ComparisonStats.new(@player1, @player2, @selected_game_id && [ @selected_game_id ]).result
+    @stats = ComparisonStats.new(@player1, @player2, @selected_game_id).result
   rescue ActiveRecord::RecordNotFound
     redirect_to compare_path, alert: "Player not found."
   end
