@@ -45,7 +45,7 @@ class ComparisonsControllerTest < ActionDispatch::IntegrationTest
     get compare_path, params: {
       player1_id: @alice.id,
       player2_id: @bob.id,
-      game_ids: [ games(:chess).id ]
+      game_id: games(:chess).id
     }
     assert_response :success
     assert_select "turbo-frame[id='results'] td", text: games(:chess).name
@@ -56,7 +56,7 @@ class ComparisonsControllerTest < ActionDispatch::IntegrationTest
     get compare_path, params: {
       player1_id: @alice.id,
       player2_id: @bob.id,
-      game_ids: [ games(:catan).id ]
+      game_id: games(:catan).id
     }
     assert_response :success
     assert_select "turbo-frame[id='results'] td", text: games(:catan).name

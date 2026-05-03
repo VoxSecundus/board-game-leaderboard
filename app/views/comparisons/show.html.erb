@@ -6,38 +6,29 @@
 
   <%= form_with url: compare_path, method: :get, data: { turbo_frame: "results" },
       class: "bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6" do |f| %>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
       <div>
         <label for="player1_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Player 1</label>
         <%= select_tag :player1_id,
             options_from_collection_for_select(@all_players, :id, :name, params[:player1_id]),
-            include_blank: "Select a player",
-            class: "block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" %>
+            include_blank: "— Select a player —",
+            class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
       </div>
       <div>
         <label for="player2_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Player 2</label>
         <%= select_tag :player2_id,
             options_from_collection_for_select(@all_players, :id, :name, params[:player2_id]),
-            include_blank: "Select a player",
-            class: "block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" %>
+            include_blank: "— Select a player —",
+            class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+      </div>
+      <div>
+        <label for="game_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by game</label>
+        <%= select_tag :game_id,
+            options_from_collection_for_select(@all_games, :id, :name, params[:game_id]),
+            include_blank: "— All games —",
+            class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
       </div>
     </div>
-
-    <% if @all_games.any? %>
-      <div class="mb-4">
-        <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Filter by game</p>
-        <div class="flex flex-wrap gap-3">
-          <% @all_games.each do |game| %>
-            <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
-              <%= check_box_tag "game_ids[]", game.id,
-                  Array(params[:game_ids]).map(&:to_s).include?(game.id.to_s),
-                  class: "rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500" %>
-              <%= game.name %>
-            </label>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
 
     <%= submit_tag "Compare",
         class: "px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors cursor-pointer" %>

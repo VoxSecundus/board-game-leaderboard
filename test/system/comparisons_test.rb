@@ -30,12 +30,12 @@ class ComparisonsTest < ApplicationSystemTestCase
     assert_text "two different players"
   end
 
-  test "game filter checkbox updates results without showing other game" do
+  test "game filter dropdown updates results without showing other game" do
     visit compare_url(player1_id: players(:alice).id, player2_id: players(:bob).id)
     within "turbo-frame#results" do
       assert_text players(:alice).name
     end
-    check games(:chess).name
+    select games(:chess).name, from: "game_id"
     click_button "Compare"
     within "turbo-frame#results" do
       assert_text games(:chess).name

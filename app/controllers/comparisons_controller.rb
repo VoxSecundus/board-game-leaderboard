@@ -14,9 +14,9 @@ class ComparisonsController < ApplicationController
     @player1 = Player.find(params[:player1_id])
     @player2 = Player.find(params[:player2_id])
 
-    game_ids = Array(params[:game_ids]).map(&:to_i).select(&:positive?)
-    @selected_game_ids = game_ids.presence
-    @stats = ComparisonStats.new(@player1, @player2, @selected_game_ids).result
+    game_id = params[:game_id].presence&.to_i
+    @selected_game_id = game_id&.positive? ? game_id : nil
+    @stats = ComparisonStats.new(@player1, @player2, @selected_game_id && [ @selected_game_id ]).result
   rescue ActiveRecord::RecordNotFound
     redirect_to compare_path, alert: "Player not found."
   end
