@@ -15,43 +15,53 @@
 
 ```bash
 bundle install
-rails credentials:edit   # set app_password, secret_key_base
+cp .env.example .env     # fill in APP_PASSWORD and SECRET_KEY_BASE
 rails db:create db:migrate
 bin/dev                  # starts Rails + Tailwind watcher
 ```
 
-## Credentials
+`dotenv-rails` loads `.env` automatically in development and test.
 
-`config/credentials.yml.enc` is **gitignored**. Create it on each machine:
+## Environment variables
 
-```bash
-EDITOR="code --wait" rails credentials:edit
-```
+| Variable | Required | Description |
+|---|---|---|
+| `APP_PASSWORD` | Yes | bcrypt hash of the login password |
+| `SECRET_KEY_BASE` | Dev/test only | secret key for signing cookies/sessions; auto-generated in Docker |
 
-Required keys:
-
-```yaml
-secret_key_base: <run: rails secret>
-app_password: <bcrypt hash — see below>
-```
+In Docker, `SECRET_KEY_BASE` is generated automatically on first boot and persisted in the storage volume. In local development it must be set in `.env`.
 
 ### Setting the app password
 
-Generate a bcrypt hash in the Rails console and paste it as `app_password`:
+Generate a bcrypt hash and set it as `APP_PASSWORD`:
 
-```ruby
-BCrypt::Password.create("your-password-here")
+```bash
+rails runner "puts BCrypt::Password.create('your-password-here')"
+```
+
+### Generating a secret key base (local dev)
+
+```bash
+rails secret
 ```
 
 ## Docker
 
+Download `docker-compose.yml`, create a `.env` file with your app password, and start:
+
 ```bash
-cp .env.example .env        # fill in RAILS_MASTER_KEY
-docker compose build
+echo "APP_PASSWORD=$(docker run --rm ruby:3.4.5-slim ruby -rbcrypt -e "puts BCrypt::Password.create('your-password')")" > .env
 docker compose up
 ```
 
-The app runs on port 3000. Named Docker volumes persist the database and uploads.
+Or generate the hash locally if Ruby is available:
+
+```bash
+echo "APP_PASSWORD=$(ruby -rbcrypt -e "puts BCrypt::Password.create('your-password')")" > .env
+docker compose up
+```
+
+The app runs on port 3000. Named Docker volumes persist the database, uploads, and the auto-generated secret key.
 
 ## Running tests
 
@@ -67,9 +77,8 @@ Do not include `Co-Authored-By` trailers in commit messages.
 
 ## Resetting the password
 
-From the Rails console (production):
+Generate a new hash and update `APP_PASSWORD` in `.env`:
 
-```ruby
-new_hash = BCrypt::Password.create("new-password")
-# Then update the credentials file with the new hash
+```bash
+rails runner "puts BCrypt::Password.create('new-password-here')"
 ```

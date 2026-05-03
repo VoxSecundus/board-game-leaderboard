@@ -2,6 +2,15 @@
 
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
+  # Generate and persist SECRET_KEY_BASE on first boot if not supplied
+  if [ -z "$SECRET_KEY_BASE" ]; then
+    SECRET_KEY_BASE_FILE="/rails/storage/.secret_key_base"
+    if [ ! -f "$SECRET_KEY_BASE_FILE" ]; then
+      ruby -e "require 'securerandom'; print SecureRandom.hex(64)" > "$SECRET_KEY_BASE_FILE"
+    fi
+    export SECRET_KEY_BASE=$(cat "$SECRET_KEY_BASE_FILE")
+  fi
+
   ./bin/rails db:prepare
 fi
 

@@ -16,6 +16,6 @@ class ApplicationController < ActionController::Base
   helper_method :current_user_authenticated?
 
   def valid_password?(input)
-    BCrypt::Password.new(Rails.application.credentials.app_password!) == input
+    BCrypt::Password.new(ENV.fetch("APP_PASSWORD")) == input
   end
 end
