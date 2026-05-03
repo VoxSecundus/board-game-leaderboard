@@ -22,7 +22,7 @@ class ComparisonsTest < ApplicationSystemTestCase
     end
   end
 
-  test "selecting same player twice redirects with alert" do
+  test "selecting same player twice returns 422 response" do
     visit compare_url
     select players(:alice).name, from: "player1_id"
     select players(:alice).name, from: "player2_id"
@@ -49,5 +49,13 @@ class ComparisonsTest < ApplicationSystemTestCase
       assert_text games(:chess).name
       assert_text games(:catan).name
     end
+  end
+
+  test "clicking game name in per-game breakdown navigates to game page" do
+    visit compare_url(player1_id: players(:alice).id, player2_id: players(:bob).id)
+    within "turbo-frame#results" do
+      click_link games(:chess).name
+    end
+    assert_current_path game_path(games(:chess))
   end
 end

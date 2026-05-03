@@ -76,7 +76,8 @@
                   <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                       <%= link_to entry[:game].name, game_path(entry[:game]),
-                          class: "font-medium text-indigo-600 dark:text-indigo-400 hover:underline" %>
+                          class: "font-medium text-indigo-600 dark:text-indigo-400 hover:underline",
+                          data: { turbo_frame: "_top" } %>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"><%= entry[:wins_p1] %></td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"><%= entry[:draws] %></td>
