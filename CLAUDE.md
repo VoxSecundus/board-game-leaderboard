@@ -27,7 +27,7 @@ bin/dev                  # starts Rails + Tailwind watcher
 | Variable | Required | Description |
 |---|---|---|
 | `APP_PASSWORD` | Yes | bcrypt hash of the login password |
-| `SECRET_KEY_BASE` | Dev/test only | secret key for signing cookies/sessions; auto-generated in Docker |
+| `SECRET_KEY_BASE` | Yes (auto-generated in Docker) | secret key for signing cookies/sessions; must be set in `.env` for local dev |
 
 In Docker, `SECRET_KEY_BASE` is generated automatically on first boot and persisted in the storage volume. In local development it must be set in `.env`.
 
@@ -50,14 +50,14 @@ rails secret
 Download `docker-compose.yml`, create a `.env` file with your app password, and start:
 
 ```bash
-echo "APP_PASSWORD=$(docker run --rm ruby:3.4.5-slim ruby -rbcrypt -e "puts BCrypt::Password.create('your-password')")" > .env
+echo "APP_PASSWORD=$(docker run --rm ruby:3.4.5-slim ruby -rbcrypt -e 'puts BCrypt::Password.create("your-password")')" > .env
 docker compose up
 ```
 
 Or generate the hash locally if Ruby is available:
 
 ```bash
-echo "APP_PASSWORD=$(ruby -rbcrypt -e "puts BCrypt::Password.create('your-password')")" > .env
+echo "APP_PASSWORD=$(ruby -rbcrypt -e 'puts BCrypt::Password.create("your-password")')" > .env
 docker compose up
 ```
 

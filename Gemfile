@@ -54,9 +54,12 @@ group :development, :test do
   gem "foreman"
 end
 
+group :development, :test do
+  gem "dotenv-rails"
+end
+
 group :development do
   gem "web-console"
-  gem "dotenv-rails"
 end
 
 group :test do
