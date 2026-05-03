@@ -77,6 +77,28 @@ class ComparisonsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Player not found.", flash[:alert]
   end
 
+  test "lower win count (p1) gets red class" do
+    # Fixtures give Alice 1, Bob 1. Add one more Bob win → Alice 1, Bob 2.
+    play = Play.create!(game: games(:chess))
+    play.play_participants.create!(player: @bob, winner: true)
+    play.play_participants.create!(player: @alice, winner: false)
+    get compare_path, params: { player1_id: @alice.id, player2_id: @bob.id }
+    assert_match(/text-red-600[^>]*>\s*1\s*</, response.body)
+    assert_match(/text-green-600[^>]*>\s*2\s*</, response.body)
+  end
+
+  test "lower win count (p2) gets red class" do
+    # Fixtures give Alice 1, Bob 1. Add two more Alice wins → Alice 3, Bob 1.
+    2.times do
+      play = Play.create!(game: games(:chess))
+      play.play_participants.create!(player: @alice, winner: true)
+      play.play_participants.create!(player: @bob, winner: false)
+    end
+    get compare_path, params: { player1_id: @alice.id, player2_id: @bob.id }
+    assert_match(/text-red-600[^>]*>\s*1\s*</, response.body)
+    assert_match(/text-green-600[^>]*>\s*3\s*</, response.body)
+  end
+
   test "unauthenticated access redirects to login" do
     delete logout_path
     get compare_path

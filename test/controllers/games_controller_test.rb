@@ -138,4 +138,20 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "p", /No plays recorded/
   end
+
+  test "GET /games paginates: page 2 contains records beyond 25" do
+    22.times { |i| Game.create!(name: "Extra #{"%.2d" % i}") }
+    Game.create!(name: "Zzz Pagination")
+    get games_path, params: { page: 2 }
+    assert_response :success
+    assert_match "Zzz Pagination", response.body
+  end
+
+  test "GET /games paginates: page 1 does not contain page 2 records" do
+    22.times { |i| Game.create!(name: "Extra #{"%.2d" % i}") }
+    Game.create!(name: "Zzz Pagination")
+    get games_path
+    assert_response :success
+    assert_no_match "Zzz Pagination", response.body
+  end
 end
