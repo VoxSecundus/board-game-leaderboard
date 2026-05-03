@@ -52,9 +52,6 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 
   gem "foreman"
-end
-
-group :development, :test do
   gem "dotenv-rails"
 end
 
