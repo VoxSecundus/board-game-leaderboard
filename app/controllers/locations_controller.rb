@@ -2,7 +2,7 @@ class LocationsController < ApplicationController
   before_action :set_location, only: %i[show edit update destroy]
 
   def index
-    @locations = Location.order(sort_column => sort_direction)
+    @pagy, @locations = pagy(Location.order(sort_column => sort_direction))
   end
 
   def show; end

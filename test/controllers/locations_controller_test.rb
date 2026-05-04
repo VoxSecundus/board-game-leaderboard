@@ -102,4 +102,20 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
     get location_path(locations(:london))
     assert_select "a", "View on map"
   end
+
+  test "GET /locations paginates: page 2 contains records beyond 25" do
+    23.times { |i| Location.create!(name: "Extra #{"%.2d" % i}") }
+    Location.create!(name: "Zzz Pagination")
+    get locations_path, params: { page: 2 }
+    assert_response :success
+    assert_includes response.body, "Zzz Pagination"
+  end
+
+  test "GET /locations paginates: page 1 does not contain page 2 records" do
+    23.times { |i| Location.create!(name: "Extra #{"%.2d" % i}") }
+    Location.create!(name: "Zzz Pagination")
+    get locations_path
+    assert_response :success
+    refute_includes response.body, "Zzz Pagination"
+  end
 end

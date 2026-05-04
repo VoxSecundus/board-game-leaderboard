@@ -4,7 +4,7 @@ class GamesController < ApplicationController
   before_action :set_game, only: %i[show edit update destroy]
 
   def index
-    @games = Game.order(sort_column => sort_direction)
+    @pagy, @games = pagy(Game.order(sort_column => sort_direction))
   end
 
   def show

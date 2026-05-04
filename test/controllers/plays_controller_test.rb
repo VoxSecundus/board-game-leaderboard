@@ -201,4 +201,22 @@ class PlaysControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_match(/★/, response.body)
   end
+
+  test "GET /plays paginates: page 2 contains records beyond 25" do
+    old_location = Location.create!(name: "OldestPlayLocation")
+    21.times { |i| Play.create!(game: games(:chess), date: (i + 20).days.ago) }
+    Play.create!(game: games(:chess), location: old_location, date: 50.years.ago)
+    get plays_path, params: { page: 2 }
+    assert_response :success
+    assert_includes response.body, "OldestPlayLocation"
+  end
+
+  test "GET /plays paginates: page 1 does not contain page 2 records" do
+    old_location = Location.create!(name: "OldestPlayLocation")
+    21.times { |i| Play.create!(game: games(:chess), date: (i + 20).days.ago) }
+    Play.create!(game: games(:chess), location: old_location, date: 50.years.ago)
+    get plays_path
+    assert_response :success
+    refute_includes response.body, "OldestPlayLocation"
+  end
 end

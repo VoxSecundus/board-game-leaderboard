@@ -2,7 +2,7 @@ class PlaysController < ApplicationController
   before_action :set_play, only: %i[show edit update destroy]
 
   def index
-    @plays = sorted_plays
+    @pagy, @plays = pagy(sorted_plays)
     @no_games = !Game.exists?
   end
 

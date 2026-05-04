@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./pagy-tailwind.css";
 
 /* Enable class-based dark mode — JS toggles .dark on <html> */
 @custom-variant dark (&:where(.dark, .dark *));

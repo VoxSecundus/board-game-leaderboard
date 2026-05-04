@@ -4,7 +4,7 @@ class PlayersController < ApplicationController
   before_action :set_player, only: %i[show edit update destroy]
 
   def index
-    @players = Player.order(sort_column => sort_direction)
+    @pagy, @players = pagy(Player.order(sort_column => sort_direction))
   end
 
   def show

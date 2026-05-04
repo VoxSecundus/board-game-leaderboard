@@ -8,7 +8,7 @@ module ApplicationHelper
 
     link_to(
       safe_join([ label, content_tag(:span, indicator, class: "text-indigo-500") ]),
-      url_for(request.query_parameters.merge(sort: column, dir: new_dir)),
+      url_for(request.query_parameters.merge(sort: column, dir: new_dir, page: nil)),
       class: "font-semibold text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
     )
   end
