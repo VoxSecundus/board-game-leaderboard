@@ -208,7 +208,7 @@ class PlaysControllerTest < ActionDispatch::IntegrationTest
     Play.create!(game: games(:chess), location: old_location, date: 50.years.ago)
     get plays_path, params: { page: 2 }
     assert_response :success
-    assert_match "OldestPlayLocation", response.body
+    assert_includes response.body, "OldestPlayLocation"
   end
 
   test "GET /plays paginates: page 1 does not contain page 2 records" do
@@ -217,6 +217,6 @@ class PlaysControllerTest < ActionDispatch::IntegrationTest
     Play.create!(game: games(:chess), location: old_location, date: 50.years.ago)
     get plays_path
     assert_response :success
-    assert_no_match "OldestPlayLocation", response.body
+    refute_includes response.body, "OldestPlayLocation"
   end
 end

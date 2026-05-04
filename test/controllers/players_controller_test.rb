@@ -139,7 +139,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     Player.create!(name: "Zzz Pagination")
     get players_path, params: { page: 2 }
     assert_response :success
-    assert_match "Zzz Pagination", response.body
+    assert_includes response.body, "Zzz Pagination"
   end
 
   test "GET /players paginates: page 1 does not contain page 2 records" do
@@ -147,6 +147,6 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     Player.create!(name: "Zzz Pagination")
     get players_path
     assert_response :success
-    assert_no_match "Zzz Pagination", response.body
+    refute_includes response.body, "Zzz Pagination"
   end
 end

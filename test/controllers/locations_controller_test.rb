@@ -108,7 +108,7 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
     Location.create!(name: "Zzz Pagination")
     get locations_path, params: { page: 2 }
     assert_response :success
-    assert_match "Zzz Pagination", response.body
+    assert_includes response.body, "Zzz Pagination"
   end
 
   test "GET /locations paginates: page 1 does not contain page 2 records" do
@@ -116,6 +116,6 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
     Location.create!(name: "Zzz Pagination")
     get locations_path
     assert_response :success
-    assert_no_match "Zzz Pagination", response.body
+    refute_includes response.body, "Zzz Pagination"
   end
 end
