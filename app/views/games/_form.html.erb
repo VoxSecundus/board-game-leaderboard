@@ -1,35 +1,47 @@
 <%= render "shared/errors", record: game %>
 
 <%= form_with model: game, class: "space-y-6" do |f| %>
-  <div>
-    <%= f.label :name, "Name", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
-    <%= f.text_field :name,
-        autofocus: game.new_record?,
-        class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
-  </div>
+  <div data-controller="bgg-fetch">
+    <div id="bgg-name-section">
+      <%= f.label :name, "Name", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+      <%= f.text_field :name,
+          autofocus: game.new_record?,
+          class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+    </div>
 
-  <div>
-    <%= f.label :bgg_url, "BoardGameGeek URL", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
-    <%= f.url_field :bgg_url,
-        placeholder: "https://boardgamegeek.com/boardgame/...",
-        class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
-    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Optional.</p>
-  </div>
-
-  <div>
-    <%= f.label :box_art, "Box Art", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
-    <% if game.box_art.attached? %>
-      <div class="mb-3">
-        <%= image_tag game.box_art.variant(resize_to_fit: [160, 160]),
-            class: "rounded object-contain bg-gray-100 dark:bg-gray-700 p-1",
-            alt: game.name %>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Current image. Upload a new one to replace it.</p>
+    <div class="mt-6">
+      <%= f.label :bgg_url, "BoardGameGeek URL", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+      <div class="flex gap-2">
+        <%= f.url_field :bgg_url,
+            placeholder: "https://boardgamegeek.com/boardgame/...",
+            data: { "bgg-fetch-target": "url" },
+            class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+        <button type="button"
+                data-action="click->bgg-fetch#fetch"
+                class="shrink-0 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm font-medium px-3 py-2 transition-colors">
+          Fetch from BGG
+        </button>
       </div>
-    <% end %>
-    <%= f.file_field :box_art,
-        accept: "image/jpeg,image/png,image/webp",
-        class: "block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 dark:file:bg-indigo-900/50 dark:file:text-indigo-300 hover:file:bg-indigo-100" %>
-    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">JPEG, PNG, or WebP. Max 5 MB. Optional.</p>
+      <div id="bgg-status"></div>
+    </div>
+
+    <div id="bgg-box-art-section" class="mt-6">
+      <%= f.label :box_art, "Box Art", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+      <% if game.box_art.attached? %>
+        <div class="mb-3">
+          <%= image_tag game.box_art.variant(resize_to_fit: [160, 160]),
+              class: "rounded object-contain bg-gray-100 dark:bg-gray-700 p-1",
+              alt: game.name %>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Current image. Upload a new one to replace it.</p>
+        </div>
+      <% end %>
+      <%= f.file_field :box_art,
+          accept: "image/jpeg,image/png,image/webp",
+          data: { action: "change->bgg-fetch#clearBggImage" },
+          class: "text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 dark:file:bg-indigo-900/50 dark:file:text-indigo-300 hover:file:bg-indigo-100" %>
+      <%= hidden_field_tag :bgg_image_url, "", data: { "bgg-fetch-target": "bggImageUrl" } %>
+      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">JPEG, PNG, or WebP. Max 5 MB. Optional.</p>
+    </div>
   </div>
 
   <div class="flex items-center gap-3">

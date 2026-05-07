@@ -4,7 +4,9 @@ Rails.application.routes.draw do
   delete "logout", to: "sessions#destroy", as: :logout
 
   resources :players
-  resources :games
+  resources :games do
+    collection { get :bgg_lookup }
+  end
   resources :locations
   resources :plays
 
