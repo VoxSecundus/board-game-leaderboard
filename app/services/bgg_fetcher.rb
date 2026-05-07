@@ -46,9 +46,6 @@ class BggFetcher
       req = Net::HTTP::Get.new(uri)
       req["Authorization"] = "Bearer #{ENV.fetch('BGG_API_TOKEN', '')}"
       res = http.request(req)
-      curl_cmd = "curl -s '#{uri}'"
-      req.each_header { |name, value| curl_cmd += " -H '#{name}: #{value}'" }
-      puts curl_cmd
       res.body if res.is_a?(Net::HTTPSuccess)
     end
   end
