@@ -2,6 +2,7 @@ require "net/http"
 
 class BggFetcher
   BGG_API = "https://boardgamegeek.com/xmlapi2/thing"
+  ALLOWED_IMAGE_HOSTS = %w[cf.geekdo-images.com].freeze
 
   Result = Data.define(:name, :image_url, :error)
 
@@ -24,7 +25,12 @@ class BggFetcher
     doc = Nokogiri::XML(xml)
     name = doc.at_xpath("//item/name[@type='primary']")&.[]("value")
     raw = doc.at_xpath("//item/image")&.text&.strip
-    image_url = raw&.then { |u| u.start_with?("//") ? "https:#{u}" : u }
+    normalized = raw&.then { |u| u.start_with?("//") ? "https:#{u}" : u }
+    uri = normalized && (URI.parse(normalized) rescue nil)
+    image_url = normalized if uri&.scheme == "https" && ALLOWED_IMAGE_HOSTS.include?(uri.host)
+    unless image_url || raw.nil?
+      Rails.logger.error("BggFetcher: rejected image URL #{raw} (not https on allowed host)")
+    end
 
     Result.new(name: name, image_url: image_url, error: nil)
   rescue => e

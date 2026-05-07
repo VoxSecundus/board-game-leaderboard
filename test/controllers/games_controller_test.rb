@@ -229,4 +229,48 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     }
     assert_redirected_to game_path(@game)
   end
+
+  # URL validation for bgg_image_url
+
+  test "POST /games with http bgg_image_url skips download" do
+    GamesController.any_instance.expects(:fetch_following_redirects).never
+    Rails.logger.expects(:error).with(regexp_matches(/rejected unsafe URL/))
+    assert_difference("Game.count", 1) do
+      post games_path, params: {
+        game: { name: "Catan" },
+        bgg_image_url: "http://cf.geekdo-images.com/pic.jpg"
+      }
+    end
+    assert_redirected_to game_path(Game.last)
+  end
+
+  test "POST /games with bgg_image_url from disallowed host skips download" do
+    GamesController.any_instance.expects(:fetch_following_redirects).never
+    Rails.logger.expects(:error).with(regexp_matches(/rejected unsafe URL/))
+    assert_difference("Game.count", 1) do
+      post games_path, params: {
+        game: { name: "Catan" },
+        bgg_image_url: "https://evil.example.com/pic.jpg"
+      }
+    end
+    assert_redirected_to game_path(Game.last)
+  end
+
+  test "fetch_following_redirects returns nil when redirect target is disallowed" do
+    controller = GamesController.new
+    redirect_response = mock()
+    redirect_response.stubs(:is_a?).with(Net::HTTPRedirection).returns(true)
+    redirect_response.stubs(:is_a?).with(Net::HTTPSuccess).returns(false)
+    redirect_response.stubs(:[]).with("location").returns("https://169.254.169.254/secret")
+    redirect_response.stubs(:code).returns("302")
+    http = mock()
+    http.stubs(:request).returns(redirect_response)
+    # expects once: without the SSRF fix the code tries to follow the redirect
+    # (calling start again for 169.254.169.254), which would violate the once expectation
+    Net::HTTP.expects(:start).once.yields(http).returns(redirect_response)
+    Rails.logger.expects(:error).with(regexp_matches(/rejected redirect to/))
+
+    result = controller.send(:fetch_following_redirects, "https://cf.geekdo-images.com/pic.jpg")
+    assert_nil result
+  end
 end

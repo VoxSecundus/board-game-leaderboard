@@ -66,4 +66,31 @@ class BggFetcherTest < ActiveSupport::TestCase
     assert_equal "Catan", result.name
     assert_nil result.image_url
   end
+
+  test "returns nil image_url for http scheme (non-https rejected)" do
+    xml = BGG_XML.sub("<image>//cf.geekdo-images.com/", "<image>http://cf.geekdo-images.com/")
+    BggFetcher.any_instance.stubs(:fetch_xml).returns(xml)
+    Rails.logger.expects(:error).with(regexp_matches(/BggFetcher.*rejected image URL/))
+    result = BggFetcher.call("https://boardgamegeek.com/boardgame/13/catan")
+    assert_nil result.image_url
+    assert_nil result.error
+  end
+
+  test "returns nil image_url for disallowed host" do
+    xml = BGG_XML.sub("<image>//cf.geekdo-images.com/", "<image>//evil.example.com/")
+    BggFetcher.any_instance.stubs(:fetch_xml).returns(xml)
+    Rails.logger.expects(:error).with(regexp_matches(/BggFetcher.*rejected image URL/))
+    result = BggFetcher.call("https://boardgamegeek.com/boardgame/13/catan")
+    assert_nil result.image_url
+    assert_nil result.error
+  end
+
+  test "returns nil image_url for malformed image URL" do
+    xml = BGG_XML.sub("//cf.geekdo-images.com/sized_hash/img/pic12345.jpg", "not a url %%")
+    BggFetcher.any_instance.stubs(:fetch_xml).returns(xml)
+    Rails.logger.expects(:error).with(regexp_matches(/BggFetcher.*rejected image URL/))
+    result = BggFetcher.call("https://boardgamegeek.com/boardgame/13/catan")
+    assert_nil result.image_url
+    assert_nil result.error
+  end
 end

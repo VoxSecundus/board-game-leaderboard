@@ -68,7 +68,20 @@ class GamesController < ApplicationController
     !box_art.is_a?(ActionDispatch::Http::UploadedFile) || box_art.original_filename.blank?
   end
 
+  ALLOWED_IMAGE_HOSTS = %w[cf.geekdo-images.com].freeze
+
+  def safe_bgg_url?(url)
+    uri = URI.parse(url)
+    uri.scheme == "https" && ALLOWED_IMAGE_HOSTS.include?(uri.host)
+  rescue URI::InvalidURIError
+    false
+  end
+
   def attach_image_from_url(game, url)
+    unless safe_bgg_url?(url)
+      Rails.logger.error("GamesController#attach_image_from_url: rejected unsafe URL #{url}")
+      return
+    end
     Rails.logger.info("GamesController#attach_image_from_url: downloading #{url}")
     response = fetch_following_redirects(url)
 
@@ -106,6 +119,10 @@ class GamesController < ApplicationController
 
     if response.is_a?(Net::HTTPRedirection)
       location = URI.join(url, response["location"]).to_s
+      unless safe_bgg_url?(location)
+        Rails.logger.error("GamesController#fetch_following_redirects: rejected redirect to #{location}")
+        return nil
+      end
       Rails.logger.info("GamesController#fetch_following_redirects: #{response.code} → #{location}")
       fetch_following_redirects(location, limit - 1)
     else
