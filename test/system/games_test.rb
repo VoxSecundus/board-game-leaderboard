@@ -25,6 +25,7 @@ class GamesTest < ApplicationSystemTestCase
     result = BggFetcher::Result.new(
       name: "Catan",
       image_url: "https://cf.geekdo-images.com/sized_hash/img/pic12345.jpg",
+      expansions: [],
       error: nil
     )
     BggFetcher.stubs(:call).returns(result)
@@ -38,7 +39,7 @@ class GamesTest < ApplicationSystemTestCase
   end
 
   test "Fetch from BGG button shows error for invalid URL" do
-    result = BggFetcher::Result.new(name: nil, image_url: nil, error: "Could not parse a game ID from that URL")
+    result = BggFetcher::Result.new(name: nil, image_url: nil, expansions: [], error: "Could not parse a game ID from that URL")
     BggFetcher.stubs(:call).returns(result)
 
     visit new_game_url
@@ -52,6 +53,7 @@ class GamesTest < ApplicationSystemTestCase
     result = BggFetcher::Result.new(
       name: "Catan",
       image_url: "https://cf.geekdo-images.com/sized_hash/img/pic12345.jpg",
+      expansions: [],
       error: nil
     )
     BggFetcher.stubs(:call).returns(result)

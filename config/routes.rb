@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   resources :players
   resources :games do
     collection { get :bgg_lookup }
+    member     { get :expansions_select }
   end
   resources :locations
   resources :plays

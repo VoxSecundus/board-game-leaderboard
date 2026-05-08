@@ -28,6 +28,17 @@
     </div>
   </div>
 
+  <% if @play.expansions.any? %>
+    <div class="mb-6">
+      <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expansions</p>
+      <ul class="list-disc list-inside text-sm text-gray-600 dark:text-gray-400">
+        <% @play.expansions.order(:name).each do |expansion| %>
+          <li><%= expansion.name %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
   <% if @play.notes.present? %>
     <div class="mb-6">
       <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</p>

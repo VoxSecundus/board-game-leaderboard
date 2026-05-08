@@ -202,6 +202,48 @@ class PlaysControllerTest < ActionDispatch::IntegrationTest
     assert_match(/★/, response.body)
   end
 
+  # expansions
+
+  test "POST /plays with expansion_ids creates play_expansion records" do
+    expansion = expansions(:catan_seafarers)
+    assert_difference("PlayExpansion.count", 1) do
+      post plays_path, params: {
+        play: {
+          game_id: games(:catan).id,
+          date: Date.today,
+          expansion_ids: [ expansion.id ],
+          play_participants_attributes: {
+            "0" => { player_id: players(:alice).id, score: 5, winner: "1" }
+          }
+        }
+      }
+    end
+    assert_equal [ expansion ], Play.last.expansions
+  end
+
+  test "PATCH /plays/:id replaces expansion_ids" do
+    play = plays(:chess_night)
+    existing_expansion = expansions(:chess_kings_gambit)
+    assert_includes play.expansions, existing_expansion
+
+    new_expansion = expansions(:catan_seafarers)
+    patch play_path(play), params: {
+      play: { expansion_ids: [ new_expansion.id ] }
+    }
+    assert_redirected_to play_path(play)
+    assert_equal [ new_expansion ], play.reload.expansions
+  end
+
+  test "PATCH /plays/:id with empty expansion_ids removes all expansions" do
+    play = plays(:chess_night)
+    assert play.expansions.any?
+    patch play_path(play), params: {
+      play: { expansion_ids: [] }
+    }
+    assert_redirected_to play_path(play)
+    assert_empty play.reload.expansions
+  end
+
   test "GET /plays paginates: page 2 contains records beyond 25" do
     old_location = Location.create!(name: "OldestPlayLocation")
     21.times { |i| Play.create!(game: games(:chess), date: (i + 20).days.ago) }

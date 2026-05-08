@@ -23,4 +23,12 @@ export default class extends Controller {
       row.remove()
     }
   }
+
+  loadExpansions(event) {
+    const gameId = event.target.value
+    const frame = document.getElementById("play_expansions")
+    if (frame) {
+      frame.src = gameId ? `/games/${gameId}/expansions_select` : ""
+    }
+  }
 }

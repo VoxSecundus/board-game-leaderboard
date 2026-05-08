@@ -1,7 +1,8 @@
 <%= render "shared/errors", record: game %>
 
 <%= form_with model: game, class: "space-y-6" do |f| %>
-  <div data-controller="bgg-fetch">
+  <div data-controller="bgg-fetch"
+       data-bgg-fetch-game-id-value="<%= game.id %>">
     <div id="bgg-name-section">
       <%= f.label :name, "Name", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
       <%= f.text_field :name,
@@ -41,6 +42,39 @@
           class: "text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 dark:file:bg-indigo-900/50 dark:file:text-indigo-300 hover:file:bg-indigo-100" %>
       <%= hidden_field_tag :bgg_image_url, "", data: { "bgg-fetch-target": "bggImageUrl" } %>
       <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">JPEG, PNG, or WebP. Max 5 MB. Optional.</p>
+    </div>
+  </div>
+
+  <div data-controller="expansion-form" class="space-y-6">
+    <div>
+      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">BGG Expansions</h3>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Use "Fetch from BGG" above to populate this list.</p>
+      <div id="game-bgg-expansions" data-expansion-form-target="bggRows">
+        <% bgg_expansions = game.expansions.where(bgg_sourced: true).order(:name) %>
+        <%= render "games/bgg_expansion_rows",
+            bgg_expansions: bgg_expansions.each_with_index.map { |e, i|
+              { index: i, id: e.id, bgg_id: e.bgg_id, name: e.name, owned: e.owned }
+            } %>
+      </div>
+    </div>
+
+    <div>
+      <div class="flex items-center justify-between mb-1">
+        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Custom Expansions</h3>
+        <button type="button"
+                data-action="expansion-form#addCustomExpansion"
+                class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+          + Add Expansion
+        </button>
+      </div>
+      <div data-expansion-form-target="customRows">
+        <% game.expansions.where(bgg_sourced: false).order(:name).each_with_index do |exp, i| %>
+          <%= render "games/custom_expansion_row", expansion: exp, index: 1000 + i %>
+        <% end %>
+      </div>
+      <template data-expansion-form-target="customTemplate">
+        <%= render "games/custom_expansion_row", expansion: nil, index: "CUSTOM_NEW" %>
+      </template>
     </div>
   </div>
 

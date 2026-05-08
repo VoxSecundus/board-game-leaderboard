@@ -53,11 +53,12 @@ class PlaysController < ApplicationController
   private
 
   def set_play
-    @play = Play.find(params[:id])
+    @play = Play.includes(:expansions, play_participants: :player).find(params[:id])
   end
 
   def play_params
     params.require(:play).permit(:game_id, :location_id, :date, :notes,
+      expansion_ids: [],
       play_participants_attributes: [ :id, :player_id, :score, :winner, :_destroy ])
   end
 

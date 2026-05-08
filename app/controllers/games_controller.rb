@@ -1,7 +1,7 @@
 class GamesController < ApplicationController
   include HistorySortable
 
-  before_action :set_game, only: %i[show edit update destroy]
+  before_action :set_game, only: %i[show edit update destroy expansions_select]
 
   def index
     @pagy, @games = pagy(Game.order(sort_column => sort_direction))
@@ -22,6 +22,17 @@ class GamesController < ApplicationController
     @name      = result.name
     @image_url = result.image_url
     @error     = result.error
+
+    existing_by_bgg_id = Game.find_by(id: params[:game_id])
+                             &.expansions
+                             &.where(bgg_sourced: true)
+                             &.index_by(&:bgg_id) || {}
+
+    @bgg_expansions = result.expansions.each_with_index.map do |exp, i|
+      db = existing_by_bgg_id[exp[:bgg_id]]
+      { index: i, id: db&.id, bgg_id: exp[:bgg_id], name: exp[:name], owned: db ? db.owned : true }
+    end
+
     respond_to { |f| f.turbo_stream }
   end
 
@@ -51,6 +62,12 @@ class GamesController < ApplicationController
     redirect_to games_path, notice: "Game deleted."
   end
 
+  def expansions_select
+    selected_ids = Array(params[:selected_ids]).map(&:to_i)
+    @expansions = @game.expansions.where(owned: true).order(:name)
+    @selected_ids = selected_ids
+  end
+
   private
 
   def set_game
@@ -58,7 +75,8 @@ class GamesController < ApplicationController
   end
 
   def game_params
-    params.require(:game).permit(:name, :bgg_url, :box_art)
+    params.require(:game).permit(:name, :bgg_url, :box_art,
+      expansions_attributes: [ :id, :bgg_id, :name, :bgg_sourced, :owned, :box_art, :_destroy ])
   end
 
   def use_bgg_image?

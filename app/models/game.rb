@@ -1,6 +1,19 @@
 class Game < ApplicationRecord
   has_one_attached :box_art
   has_many :plays, dependent: :destroy
+  has_many :expansions, dependent: :destroy
+
+  accepts_nested_attributes_for :expansions, allow_destroy: true
+
+  def expansions_attributes=(attrs)
+    attrs.each_value do |expansion_attrs|
+      next unless expansion_attrs["_destroy"].in?([ "1", true ])
+      id = expansion_attrs["id"]&.to_i
+      next unless id&.positive? && expansions.find_by(id: id, bgg_sourced: true)
+      expansion_attrs.delete("_destroy")
+    end
+    super(attrs)
+  end
 
   ALLOWED_TYPES = %w[image/jpeg image/png image/webp].freeze
   MAX_BYTES = 5.megabytes

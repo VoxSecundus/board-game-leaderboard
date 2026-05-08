@@ -4,7 +4,7 @@ class BggFetcher
   BGG_API = "https://boardgamegeek.com/xmlapi2/thing"
   ALLOWED_IMAGE_HOSTS = %w[cf.geekdo-images.com].freeze
 
-  Result = Data.define(:name, :image_url, :error)
+  Result = Data.define(:name, :image_url, :expansions, :error)
 
   def self.call(bgg_url) = new(bgg_url).call
 
@@ -14,12 +14,12 @@ class BggFetcher
 
   def call
     game_id = extract_id
-    return Result.new(name: nil, image_url: nil, error: "Could not parse a game ID from that URL") unless game_id
+    return Result.new(name: nil, image_url: nil, expansions: [], error: "Could not parse a game ID from that URL") unless game_id
 
     xml = fetch_xml(game_id)
     unless xml
       Rails.logger.error("BggFetcher: API request failed for game ID #{game_id} (url=#{@bgg_url})")
-      return Result.new(name: nil, image_url: nil, error: "BGG API request failed")
+      return Result.new(name: nil, image_url: nil, expansions: [], error: "BGG API request failed")
     end
 
     doc = Nokogiri::XML(xml)
@@ -32,10 +32,14 @@ class BggFetcher
       Rails.logger.error("BggFetcher: rejected image URL #{raw} (not https on allowed host)")
     end
 
-    Result.new(name: name, image_url: image_url, error: nil)
+    expansions = doc.xpath("//item/link[@type='boardgameexpansion']").map do |link|
+      { bgg_id: link["id"].to_i, name: link["value"] }
+    end
+
+    Result.new(name: name, image_url: image_url, expansions: expansions, error: nil)
   rescue => e
     Rails.logger.error("BggFetcher: unexpected error for #{@bgg_url}: #{e.class}: #{e.message}")
-    Result.new(name: nil, image_url: nil, error: e.message)
+    Result.new(name: nil, image_url: nil, expansions: [], error: e.message)
   end
 
   private

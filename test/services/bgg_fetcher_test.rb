@@ -9,6 +9,9 @@ class BggFetcherTest < ActiveSupport::TestCase
         <image>//cf.geekdo-images.com/sized_hash/img/pic12345.jpg</image>
         <name type="primary" sortindex="1" value="Catan"/>
         <name type="alternate" sortindex="1" value="Settlers of Catan"/>
+        <link type="boardgameexpansion" id="325" value="Catan: Seafarers"/>
+        <link type="boardgameexpansion" id="462" value="Catan: Cities &amp; Knights"/>
+        <link type="boardgamecategory" id="1010" value="Fantasy"/>
       </item>
     </items>
   XML
@@ -92,5 +95,42 @@ class BggFetcherTest < ActiveSupport::TestCase
     result = BggFetcher.call("https://boardgamegeek.com/boardgame/13/catan")
     assert_nil result.image_url
     assert_nil result.error
+  end
+
+  test "parses boardgameexpansion links into expansions array" do
+    BggFetcher.any_instance.stubs(:fetch_xml).returns(BGG_XML)
+    result = BggFetcher.call("https://boardgamegeek.com/boardgame/13/catan")
+    assert_equal 2, result.expansions.length
+    assert_includes result.expansions, { bgg_id: 325, name: "Catan: Seafarers" }
+    assert_includes result.expansions, { bgg_id: 462, name: "Catan: Cities & Knights" }
+  end
+
+  test "ignores non-expansion link types when parsing expansions" do
+    BggFetcher.any_instance.stubs(:fetch_xml).returns(BGG_XML)
+    result = BggFetcher.call("https://boardgamegeek.com/boardgame/13/catan")
+    result.expansions.each do |exp|
+      assert exp[:bgg_id].is_a?(Integer)
+      assert exp[:name].is_a?(String)
+    end
+    assert_equal 2, result.expansions.length
+  end
+
+  test "expansions is empty array when no expansion links present" do
+    xml_without_expansions = <<~XML
+      <?xml version="1.0" encoding="utf-8"?>
+      <items total="1">
+        <item type="boardgame" id="13">
+          <name type="primary" sortindex="1" value="Catan"/>
+        </item>
+      </items>
+    XML
+    BggFetcher.any_instance.stubs(:fetch_xml).returns(xml_without_expansions)
+    result = BggFetcher.call("https://boardgamegeek.com/boardgame/13/catan")
+    assert_equal [], result.expansions
+  end
+
+  test "expansions is always an array even on error" do
+    result = BggFetcher.call("https://boardgamegeek.com/")
+    assert_kind_of Array, result.expansions
   end
 end

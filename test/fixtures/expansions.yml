@@ -1,0 +1,26 @@
+chess_kings_gambit:
+  game: chess
+  bgg_id: 11111
+  name: "Chess: King's Gambit"
+  bgg_sourced: true
+  owned: true
+
+catan_seafarers:
+  game: catan
+  bgg_id: 22222
+  name: "Catan: Seafarers"
+  bgg_sourced: true
+  owned: true
+
+catan_cities:
+  game: catan
+  bgg_id: 33333
+  name: "Catan: Cities & Knights"
+  bgg_sourced: true
+  owned: false
+
+catan_custom:
+  game: catan
+  name: "Catan: House Rules Pack"
+  bgg_sourced: false
+  owned: true

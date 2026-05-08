@@ -1,0 +1,35 @@
+<% bgg_expansions.each do |exp| %>
+  <div data-expansion-form-target="row"
+       data-expansion-source="bgg"
+       class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 mt-2">
+    <% key = exp[:index] %>
+    <% if exp[:id] %>
+      <%= hidden_field_tag "game[expansions_attributes][#{key}][id]", exp[:id], data: { "expansion-id": true } %>
+    <% end %>
+    <%= hidden_field_tag "game[expansions_attributes][#{key}][bgg_id]", exp[:bgg_id] %>
+    <%= hidden_field_tag "game[expansions_attributes][#{key}][bgg_sourced]", "true" %>
+    <%= hidden_field_tag "game[expansions_attributes][#{key}][owned]", exp[:owned] ? "true" : "false",
+        data: { "owned-field": true } %>
+
+    <div class="flex-1">
+      <%= text_field_tag "game[expansions_attributes][#{key}][name]", exp[:name],
+          placeholder: "Expansion name",
+          class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+    </div>
+
+    <div class="shrink-0">
+      <%= file_field_tag "game[expansions_attributes][#{key}][box_art]",
+          accept: "image/jpeg,image/png,image/webp",
+          class: "text-xs text-gray-500 dark:text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-medium file:bg-indigo-50 file:text-indigo-700 dark:file:bg-indigo-900/50 dark:file:text-indigo-300 hover:file:bg-indigo-100" %>
+    </div>
+
+    <button type="button"
+            data-action="expansion-form#removeExpansion"
+            class="p-1.5 rounded text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex-shrink-0"
+            title="Remove">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+<% end %>

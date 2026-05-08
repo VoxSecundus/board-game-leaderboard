@@ -1,0 +1,18 @@
+<%= turbo_frame_tag "play_expansions" do %>
+  <% if @expansions.any? %>
+    <div class="mt-4">
+      <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Expansions played</p>
+      <div class="space-y-1">
+        <% @expansions.each do |expansion| %>
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <%= check_box_tag "play[expansion_ids][]", expansion.id,
+                @selected_ids.include?(expansion.id),
+                id: "expansion_#{expansion.id}",
+                class: "rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>
+            <%= expansion.name %>
+          </label>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

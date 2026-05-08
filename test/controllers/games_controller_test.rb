@@ -158,7 +158,7 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
   # bgg_lookup
 
   test "GET /games/bgg_lookup returns turbo stream with name on success" do
-    result = BggFetcher::Result.new(name: "Catan", image_url: "https://example.com/catan.jpg", error: nil)
+    result = BggFetcher::Result.new(name: "Catan", image_url: "https://example.com/catan.jpg", expansions: [], error: nil)
     BggFetcher.stubs(:call).returns(result)
     get bgg_lookup_games_path, params: { bgg_url: "https://boardgamegeek.com/boardgame/13/catan" },
         headers: { "Accept" => "text/vnd.turbo-stream.html" }
@@ -167,7 +167,7 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /games/bgg_lookup returns turbo stream with error message on bad URL" do
-    result = BggFetcher::Result.new(name: nil, image_url: nil, error: "Could not parse a game ID from that URL")
+    result = BggFetcher::Result.new(name: nil, image_url: nil, expansions: [], error: "Could not parse a game ID from that URL")
     BggFetcher.stubs(:call).returns(result)
     get bgg_lookup_games_path, params: { bgg_url: "https://example.com" },
         headers: { "Accept" => "text/vnd.turbo-stream.html" }
@@ -176,7 +176,7 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /games/bgg_lookup returns turbo stream with error on API failure" do
-    result = BggFetcher::Result.new(name: nil, image_url: nil, error: "BGG API request failed")
+    result = BggFetcher::Result.new(name: nil, image_url: nil, expansions: [], error: "BGG API request failed")
     BggFetcher.stubs(:call).returns(result)
     get bgg_lookup_games_path, params: { bgg_url: "https://boardgamegeek.com/boardgame/13/catan" },
         headers: { "Accept" => "text/vnd.turbo-stream.html" }
@@ -254,6 +254,153 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
       }
     end
     assert_redirected_to game_path(Game.last)
+  end
+
+  # expansions via bgg_lookup
+
+  test "GET /games/bgg_lookup includes expansions turbo stream in response" do
+    result = BggFetcher::Result.new(
+      name: "Catan",
+      image_url: nil,
+      expansions: [ { bgg_id: 325, name: "Catan: Seafarers" } ],
+      error: nil
+    )
+    BggFetcher.stubs(:call).returns(result)
+    get bgg_lookup_games_path, params: { bgg_url: "https://boardgamegeek.com/boardgame/13/catan" },
+        headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    assert_response :success
+    assert_includes response.body, "Catan: Seafarers"
+    assert_includes response.body, "game-bgg-expansions"
+  end
+
+  test "GET /games/bgg_lookup with game_id enriches expansion rows with existing DB ids" do
+    existing = expansions(:catan_seafarers)
+    result = BggFetcher::Result.new(
+      name: "Catan",
+      image_url: nil,
+      expansions: [ { bgg_id: existing.bgg_id, name: existing.name } ],
+      error: nil
+    )
+    BggFetcher.stubs(:call).returns(result)
+    get bgg_lookup_games_path,
+        params: { bgg_url: "https://boardgamegeek.com/boardgame/13/catan", game_id: games(:catan).id },
+        headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    assert_response :success
+    assert_includes response.body, existing.id.to_s
+  end
+
+  # create with expansions_attributes
+
+  test "POST /games with BGG expansions_attributes creates expansion records" do
+    assert_difference("Expansion.count", 1) do
+      post games_path, params: {
+        game: {
+          name: "Pandemic",
+          expansions_attributes: {
+            "0" => { bgg_id: "999", name: "Pandemic: On the Brink", bgg_sourced: "true", owned: "true" }
+          }
+        }
+      }
+    end
+    expansion = Expansion.last
+    assert_equal "Pandemic: On the Brink", expansion.name
+    assert expansion.bgg_sourced
+    assert_equal 999, expansion.bgg_id
+  end
+
+  test "POST /games with custom expansions_attributes creates custom expansion record" do
+    assert_difference("Expansion.count", 1) do
+      post games_path, params: {
+        game: {
+          name: "Pandemic",
+          expansions_attributes: {
+            "1000" => { name: "House Rules Pack", bgg_sourced: "false", owned: "true" }
+          }
+        }
+      }
+    end
+    expansion = Expansion.last
+    assert_equal "House Rules Pack", expansion.name
+    assert_not expansion.bgg_sourced
+    assert_nil expansion.bgg_id
+  end
+
+  # update with expansions_attributes
+
+  test "PATCH /games/:id sets owned: false for an existing BGG expansion" do
+    expansion = expansions(:catan_seafarers)
+    assert expansion.owned
+    patch game_path(games(:catan)), params: {
+      game: {
+        name: games(:catan).name,
+        expansions_attributes: {
+          "0" => { id: expansion.id, bgg_id: expansion.bgg_id, name: expansion.name,
+                   bgg_sourced: "true", owned: "false" }
+        }
+      }
+    }
+    assert_redirected_to game_path(games(:catan))
+    assert_not expansion.reload.owned
+  end
+
+  test "PATCH /games/:id does not destroy a BGG expansion even when _destroy is submitted" do
+    expansion = expansions(:catan_seafarers)
+    assert_no_difference("Expansion.count") do
+      patch game_path(games(:catan)), params: {
+        game: {
+          name: games(:catan).name,
+          expansions_attributes: {
+            "0" => { id: expansion.id, _destroy: "1" }
+          }
+        }
+      }
+    end
+  end
+
+  test "PATCH /games/:id adds a new custom expansion to existing game" do
+    assert_difference("Expansion.count", 1) do
+      patch game_path(games(:chess)), params: {
+        game: {
+          name: games(:chess).name,
+          expansions_attributes: {
+            "1000" => { name: "Chess960 Variant Pack", bgg_sourced: "false", owned: "true" }
+          }
+        }
+      }
+    end
+    assert_equal "Chess960 Variant Pack", games(:chess).expansions.last.name
+  end
+
+  test "PATCH /games/:id destroys a custom expansion via _destroy" do
+    expansion = expansions(:catan_custom)
+    assert_difference("Expansion.count", -1) do
+      patch game_path(games(:catan)), params: {
+        game: {
+          name: games(:catan).name,
+          expansions_attributes: {
+            "1000" => { id: expansion.id, _destroy: "1" }
+          }
+        }
+      }
+    end
+    assert_raises(ActiveRecord::RecordNotFound) { expansion.reload }
+  end
+
+  # expansions_select
+
+  test "GET /games/:id/expansions_select returns owned expansions as turbo frame" do
+    get expansions_select_game_path(games(:catan)),
+        headers: { "Accept" => "text/html" }
+    assert_response :success
+    assert_includes response.body, "Catan: Seafarers"
+    refute_includes response.body, "Catan: Cities &amp; Knights"
+  end
+
+  test "GET /games/:id/expansions_select pre-checks expansions from selected_ids" do
+    expansion = expansions(:catan_seafarers)
+    get expansions_select_game_path(games(:catan)), params: { selected_ids: [ expansion.id ] }
+    assert_response :success
+    assert_match(/checked.*#{expansion.id}|#{expansion.id}.*checked/, response.body)
   end
 
   test "fetch_following_redirects returns nil when redirect target is disallowed" do

@@ -1,11 +1,14 @@
 <%= render "shared/errors", record: play %>
 
-<%= form_with model: play, class: "space-y-6" do |f| %>
+<%= form_with model: play, class: "space-y-6", data: { controller: "play-form" } do |f| %>
   <div>
     <%= f.label :game_id, "Game", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
     <%= f.collection_select :game_id, games, :id, :name,
         { include_blank: "— Select a game —" },
-        class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+        class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500",
+        data: { action: "change->play-form#loadExpansions" } %>
+    <%= turbo_frame_tag "play_expansions",
+        src: (play.game_id ? expansions_select_game_path(play.game_id, selected_ids: play.expansion_ids) : nil) %>
   </div>
 
   <div>
@@ -28,7 +31,7 @@
         class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
   </div>
 
-  <div data-controller="play-form">
+  <div>
     <div class="flex items-center justify-between mb-3">
       <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Participants</p>
       <button type="button"

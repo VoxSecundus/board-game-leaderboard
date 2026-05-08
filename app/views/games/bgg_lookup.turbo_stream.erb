@@ -34,4 +34,8 @@
       </div>
     <% end %>
   <% end %>
+
+  <%= turbo_stream.update "game-bgg-expansions" do %>
+    <%= render "games/bgg_expansion_rows", bgg_expansions: @bgg_expansions %>
+  <% end %>
 <% end %>

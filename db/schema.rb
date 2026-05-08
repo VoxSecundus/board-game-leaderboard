@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_02_132651) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_08_000002) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -39,6 +39,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_02_132651) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "expansions", force: :cascade do |t|
+    t.integer "bgg_id"
+    t.boolean "bgg_sourced", default: false, null: false
+    t.datetime "created_at", null: false
+    t.integer "game_id", null: false
+    t.string "name", null: false
+    t.boolean "owned", default: true, null: false
+    t.datetime "updated_at", null: false
+    t.index ["game_id", "bgg_id"], name: "index_expansions_on_game_id_and_bgg_id", unique: true, where: "bgg_id IS NOT NULL"
+    t.index ["game_id"], name: "index_expansions_on_game_id"
+  end
+
   create_table "games", force: :cascade do |t|
     t.string "bgg_url"
     t.datetime "created_at", null: false
@@ -52,6 +64,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_02_132651) do
     t.decimal "longitude", precision: 10, scale: 6
     t.string "name", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "play_expansions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "expansion_id", null: false
+    t.integer "play_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["play_id", "expansion_id"], name: "index_play_expansions_on_play_id_and_expansion_id", unique: true
   end
 
   create_table "play_participants", force: :cascade do |t|
@@ -84,6 +104,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_02_132651) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "expansions", "games"
+  add_foreign_key "play_expansions", "expansions"
+  add_foreign_key "play_expansions", "plays"
   add_foreign_key "play_participants", "players"
   add_foreign_key "play_participants", "plays"
   add_foreign_key "plays", "games"
