@@ -74,6 +74,7 @@ Environment variables are loaded from `.env` via `dotenv-rails`. Copy `.env.exam
 |---|---|---|
 | `APP_PASSWORD` | Yes | bcrypt hash of the login password |
 | `SECRET_KEY_BASE` | Yes | Secret key for signing cookies/sessions |
+| `BGG_API_TOKEN` | No | Bearer token for the BGG XML API (enables "Fetch from BGG" on game forms) |
 
 ### Generating a password hash
 

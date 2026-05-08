@@ -1,0 +1,37 @@
+<% if @error %>
+  <%= turbo_stream.update "bgg-status" do %>
+    <p class="mt-1 text-xs text-red-500 dark:text-red-400"><%= @error %></p>
+  <% end %>
+<% else %>
+  <%= turbo_stream.update "bgg-status" do %><% end %>
+
+  <%= turbo_stream.replace "bgg-name-section" do %>
+    <div id="bgg-name-section">
+      <label for="game_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+      <%= text_field_tag "game[name]", @name,
+          id: "game_name",
+          class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+    </div>
+  <% end %>
+
+  <% if @image_url %>
+    <%= turbo_stream.replace "bgg-box-art-section" do %>
+      <div id="bgg-box-art-section">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Box Art</label>
+        <div class="mb-3">
+          <%= image_tag @image_url,
+              class: "rounded object-contain bg-gray-100 dark:bg-gray-700 p-1",
+              style: "max-width: 160px; max-height: 160px;",
+              alt: "BGG box art preview" %>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Fetched from BGG. Upload a file to replace it.</p>
+        </div>
+        <%= file_field_tag "game[box_art]",
+            accept: "image/jpeg,image/png,image/webp",
+            data: { action: "change->bgg-fetch#clearBggImage" },
+            class: "text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 dark:file:bg-indigo-900/50 dark:file:text-indigo-300 hover:file:bg-indigo-100" %>
+        <%= hidden_field_tag :bgg_image_url, @image_url, data: { "bgg-fetch-target": "bggImageUrl" } %>
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">JPEG, PNG, or WebP. Max 5 MB. Optional.</p>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

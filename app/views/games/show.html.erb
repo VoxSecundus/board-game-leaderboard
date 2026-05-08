@@ -4,10 +4,30 @@
 <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 max-w-2xl">
   <div class="flex items-start gap-6">
     <% if @game.box_art.attached? %>
-      <div class="flex-shrink-0">
-        <%= image_tag @game.box_art.variant(resize_to_fit: [96, 96]),
-            class: "rounded object-contain bg-gray-100 dark:bg-gray-700 p-1",
-            width: 96, height: 96, alt: @game.name %>
+      <div class="flex-shrink-0" data-controller="image-modal">
+        <button type="button"
+                data-action="click->image-modal#open"
+                class="block cursor-zoom-in rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
+          <%= image_tag @game.box_art.variant(resize_to_fit: [96, 96]),
+              class: "rounded object-contain bg-gray-100 dark:bg-gray-700 p-1",
+              width: 96, height: 96, alt: @game.name %>
+        </button>
+
+        <dialog data-image-modal-target="dialog"
+                data-action="click->image-modal#backdropClick"
+                class="m-auto rounded-lg shadow-xl backdrop:bg-black/60 p-0 max-w-[90vw] max-h-[90vh] bg-transparent">
+          <div class="relative">
+            <%= image_tag url_for(@game.box_art),
+                class: "block max-w-[90vw] max-h-[90vh] object-contain rounded-lg",
+                alt: @game.name %>
+            <button type="button"
+                    data-action="click->image-modal#close"
+                    class="absolute top-2 right-2 rounded-full bg-black/50 text-white w-8 h-8 flex items-center justify-center text-lg leading-none hover:bg-black/70"
+                    aria-label="Close">
+              &times;
+            </button>
+          </div>
+        </dialog>
       </div>
     <% end %>
     <div class="flex-1 min-w-0">

@@ -28,6 +28,7 @@ bin/dev                  # starts Rails + Tailwind watcher
 |---|---|---|
 | `APP_PASSWORD` | Yes | bcrypt hash of the login password |
 | `SECRET_KEY_BASE` | Yes (auto-generated in Docker) | secret key for signing cookies/sessions; must be set in `.env` for local dev |
+| `BGG_API_TOKEN` | No | Bearer token for the BGG XML API; enables "Fetch from BGG" on game forms |
 
 In Docker, `SECRET_KEY_BASE` is generated automatically on first boot and persisted in the storage volume. In local development it must be set in `.env`.
 

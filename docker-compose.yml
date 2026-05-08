@@ -6,6 +6,7 @@ services:
     environment:
       APP_PASSWORD: ${APP_PASSWORD?APP_PASSWORD is required}
       RAILS_ENV: production
+      BGG_API_TOKEN: ${BGG_API_TOKEN:-}
     volumes:
       - storage_data:/rails/storage
     restart: unless-stopped
