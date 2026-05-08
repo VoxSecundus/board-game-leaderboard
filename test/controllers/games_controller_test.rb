@@ -1,9 +1,19 @@
 require "test_helper"
 
 class GamesControllerTest < ActionDispatch::IntegrationTest
+  include ActiveJob::TestHelper
+
   setup do
     log_in
     @game = games(:chess)
+  end
+
+  test "GET /games shows pending import banner for each in-progress import" do
+    BggCollectionImport.create!(username: "alice")
+    BggCollectionImport.create!(username: "bob")
+    get games_path
+    assert_includes response.body, "alice"
+    assert_includes response.body, "bob"
   end
 
   test "GET /games returns 200" do
@@ -255,6 +265,82 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to game_path(Game.last)
   end
+
+  # bgg_import
+
+  test "GET /games/bgg_import returns 200" do
+    get bgg_import_games_path
+    assert_response :success
+  end
+
+  test "POST /games/bgg_import with username renders preview with game names" do
+    items = [
+      BggCollectionFetcher::CollectionItem.new(bgg_id: 13, name: "Catan", image_url: nil, bgg_url: "https://boardgamegeek.com/boardgame/13"),
+      BggCollectionFetcher::CollectionItem.new(bgg_id: 68448, name: "7 Wonders", image_url: nil, bgg_url: "https://boardgamegeek.com/boardgame/68448")
+    ]
+    BggCollectionFetcher.stubs(:call).returns(BggCollectionFetcher::Result.new(items: items, error: nil))
+    post bgg_import_games_path, params: { username: "testuser" }
+    assert_response :success
+    assert_includes response.body, "Catan"
+    assert_includes response.body, "7 Wonders"
+  end
+
+  test "POST /games/bgg_import marks game matching existing bgg_url as already in leaderboard" do
+    items = [
+      BggCollectionFetcher::CollectionItem.new(bgg_id: 171, name: "Chess", image_url: nil, bgg_url: "https://boardgamegeek.com/boardgame/171")
+    ]
+    BggCollectionFetcher.stubs(:call).returns(BggCollectionFetcher::Result.new(items: items, error: nil))
+    post bgg_import_games_path, params: { username: "testuser" }
+    assert_response :success
+    assert_includes response.body, "already in leaderboard"
+  end
+
+  test "POST /games/bgg_import shows error when service fails" do
+    BggCollectionFetcher.stubs(:call).returns(BggCollectionFetcher::Result.new(items: [], error: "User not found"))
+    post bgg_import_games_path, params: { username: "nonexistent" }
+    assert_response :success
+    assert_includes response.body, "User not found"
+  end
+
+  test "POST /games/bgg_import with bgg_ids enqueues BggCollectionImportJob and redirects" do
+    assert_enqueued_with(job: BggCollectionImportJob) do
+      post bgg_import_games_path, params: {
+        username: "testuser",
+        bgg_ids: [ "999" ],
+        game_names: { "999" => "New Game" },
+        game_image_urls: { "999" => "" }
+      }
+    end
+    assert_redirected_to games_path
+  end
+
+  test "POST /games/bgg_import with bgg_ids creates a BggCollectionImport tracking record" do
+    assert_difference("BggCollectionImport.count", 1) do
+      post bgg_import_games_path, params: {
+        username: "testuser",
+        bgg_ids: [ "999" ],
+        game_names: { "999" => "New Game" },
+        game_image_urls: { "999" => "" }
+      }
+    end
+    assert_equal "testuser", BggCollectionImport.last.username
+  end
+
+  test "POST /games/bgg_import blocks a second import while one is already in progress" do
+    BggCollectionImport.create!(username: "first")
+    assert_no_enqueued_jobs do
+      post bgg_import_games_path, params: {
+        username: "testuser",
+        bgg_ids: [ "999" ],
+        game_names: { "999" => "New Game" },
+        game_image_urls: { "999" => "" }
+      }
+    end
+    assert_redirected_to games_path
+    assert flash[:alert].present?
+  end
+
+  # fetch_following_redirects
 
   test "fetch_following_redirects returns nil when redirect target is disallowed" do
     controller = GamesController.new

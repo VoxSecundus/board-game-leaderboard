@@ -5,6 +5,7 @@ class GamesController < ApplicationController
 
   def index
     @pagy, @games = pagy(Game.order(sort_column => sort_direction))
+    @pending_imports = BggCollectionImport.order(:created_at)
   end
 
   def show
@@ -15,6 +16,27 @@ class GamesController < ApplicationController
 
   def new
     @game = Game.new
+  end
+
+  def bgg_import
+    if request.post? && params[:bgg_ids]
+      if BggCollectionImport.exists?
+        redirect_to games_path, alert: "An import is already in progress. Please wait for it to finish before starting another."
+        return
+      end
+      items = Array(params[:bgg_ids]).filter_map do |id|
+        name = (params[:game_names] || {})[id].to_s.strip
+        next if name.blank?
+        { "bgg_id" => id.to_i, "name" => name,
+          "image_url" => (params[:game_image_urls] || {})[id].to_s.presence,
+          "bgg_url" => "https://boardgamegeek.com/boardgame/#{id}" }
+      end
+      import = BggCollectionImport.create!(username: params[:username].to_s.strip)
+      BggCollectionImportJob.perform_later(items, import.id)
+      redirect_to games_path, notice: "Importing #{items.length} game(s) in the background. They will appear shortly."
+    elsif request.post?
+      fetch_and_preview_collection
+    end
   end
 
   def bgg_lookup
@@ -128,6 +150,23 @@ class GamesController < ApplicationController
     else
       response
     end
+  end
+
+  def fetch_and_preview_collection
+    username = params[:username].to_s.strip
+    result = BggCollectionFetcher.call(username)
+    if result.error
+      flash.now[:alert] = result.error
+      render :bgg_import
+      return
+    end
+    existing = Game.where.not(bgg_url: [ nil, "" ])
+                   .pluck(:bgg_url)
+                   .filter_map { |u| u.match(%r{/boardgame/(\d+)})&.captures&.first&.to_i }
+                   .to_set
+    @username = username
+    @items_with_status = result.items.map { |item| { item: item, exists: existing.include?(item.bgg_id) } }
+    render :bgg_import
   end
 
   SORTABLE_COLUMNS = %w[name created_at].freeze

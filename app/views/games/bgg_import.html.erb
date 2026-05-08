@@ -1,0 +1,107 @@
+<% content_for :title, "Import from BGG" %>
+<% breadcrumbs(["Home", root_path], ["Games", games_path], ["Import from BGG", nil]) %>
+
+<div class="max-w-3xl">
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Import from BGG</h1>
+
+  <% if @items_with_status %>
+    <%= form_with url: bgg_import_games_path, method: :post, data: { turbo: false } do |f| %>
+      <%= hidden_field_tag :username, @username %>
+
+      <% @items_with_status.each do |entry| %>
+        <% item = entry[:item] %>
+        <%= hidden_field_tag "game_names[#{item.bgg_id}]", item.name %>
+        <%= hidden_field_tag "game_image_urls[#{item.bgg_id}]", item.image_url %>
+      <% end %>
+
+      <div data-controller="collection-filter" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            Found <%= @items_with_status.length %> owned game<%= @items_with_status.length == 1 ? "" : "s" %> in
+            <strong><%= @username %></strong>'s collection.
+          </p>
+          <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none">
+            <input type="checkbox"
+                   checked
+                   data-action="change->collection-filter#toggle"
+                   class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+            Hide already in leaderboard
+          </label>
+        </div>
+
+        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-800">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-8">Import</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Game</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+              <% @items_with_status.each do |entry| %>
+                <% item = entry[:item]; exists = entry[:exists] %>
+                <tr class="<%= exists ? 'opacity-50' : '' %>"<% if exists %> data-collection-filter-target="existingRow" hidden<% end %>>
+                  <td class="px-4 py-3">
+                    <input type="checkbox"
+                           name="bgg_ids[]"
+                           value="<%= item.bgg_id %>"
+                           <%= "checked" unless exists %>
+                           class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-3">
+                      <% if item.image_url %>
+                        <img src="<%= item.image_url %>"
+                             alt="<%= item.name %> box art"
+                             class="h-10 w-10 rounded object-contain bg-gray-100 dark:bg-gray-700"
+                             loading="lazy">
+                      <% else %>
+                        <div class="h-10 w-10 rounded bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 text-xs">?</div>
+                      <% end %>
+                      <span class="text-sm font-medium text-gray-900 dark:text-white"><%= item.name %></span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                    <% if exists %>
+                      <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-700 px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-300">
+                        already in leaderboard
+                      </span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <%= f.submit "Import selected",
+              class: "rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 px-4 transition-colors cursor-pointer" %>
+          <%= link_to "Cancel", games_path,
+              class: "text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200" %>
+        </div>
+      </div>
+    <% end %>
+
+  <% else %>
+    <%= form_with url: bgg_import_games_path, method: :post, data: { turbo: false } do |f| %>
+      <div class="space-y-4">
+        <div>
+          <%= f.label :username, "BGG username", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+          <%= f.text_field :username,
+              placeholder: "e.g. Vasel",
+              autofocus: true,
+              class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <%= f.submit "Fetch collection",
+              class: "rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 px-4 transition-colors cursor-pointer" %>
+          <%= link_to "Cancel", games_path,
+              class: "text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200" %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>
