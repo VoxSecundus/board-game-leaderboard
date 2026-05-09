@@ -20,4 +20,23 @@ class LocationsTest < ApplicationSystemTestCase
     assert_selector "[data-view-toggle-target='tableView']", visible: true
     assert_selector "[data-view-toggle-target='gridView']", visible: :hidden
   end
+
+  test "clicking a location card navigates to the location" do
+    location = locations(:living_room)
+    visit locations_url
+    within find("div[data-navigate-url-value='#{location_path(location)}']") do
+      find("p", text: /Added/).click
+    end
+    assert_current_path location_path(location)
+  end
+
+  test "clicking a location table row navigates to the location" do
+    location = locations(:living_room)
+    visit locations_url
+    find("button[aria-label='Table view']").click
+    within "tr[data-navigate-url-value='#{location_path(location)}']" do
+      find("td", text: location.created_at.to_date.to_s).click
+    end
+    assert_current_path location_path(location)
+  end
 end

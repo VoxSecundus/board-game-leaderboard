@@ -37,6 +37,24 @@ class PlaysTest < ApplicationSystemTestCase
     assert_text "Play deleted."
   end
 
+  test "clicking a play table row navigates to the play" do
+    play = plays(:chess_night)
+    visit plays_url
+    within "tr[data-navigate-url-value='#{play_path(play)}']" do
+      find("td", text: locations(:living_room).name).click
+    end
+    assert_current_path play_path(play)
+  end
+
+  test "clicking the game link in a play row navigates to the game" do
+    play = plays(:chess_night)
+    visit plays_url
+    within "tr[data-navigate-url-value='#{play_path(play)}']" do
+      click_link play.game.name
+    end
+    assert_current_path game_path(play.game)
+  end
+
   test "sort link changes URL" do
     visit plays_url
     click_link "Date"
