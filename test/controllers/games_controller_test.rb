@@ -305,6 +305,7 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
   test "POST /games/bgg_import with bgg_ids enqueues BggCollectionImportJob and redirects" do
     assert_enqueued_with(job: BggCollectionImportJob) do
       post bgg_import_games_path, params: {
+        step: "import",
         username: "testuser",
         bgg_ids: [ "999" ],
         game_names: { "999" => "New Game" },
@@ -317,6 +318,7 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
   test "POST /games/bgg_import with bgg_ids creates a BggCollectionImport tracking record" do
     assert_difference("BggCollectionImport.count", 1) do
       post bgg_import_games_path, params: {
+        step: "import",
         username: "testuser",
         bgg_ids: [ "999" ],
         game_names: { "999" => "New Game" },
@@ -330,11 +332,27 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     BggCollectionImport.create!(username: "first")
     assert_no_enqueued_jobs do
       post bgg_import_games_path, params: {
+        step: "import",
         username: "testuser",
         bgg_ids: [ "999" ],
         game_names: { "999" => "New Game" },
         game_image_urls: { "999" => "" }
       }
+    end
+    assert_redirected_to games_path
+    assert flash[:alert].present?
+  end
+
+  test "POST /games/bgg_import with no bgg_ids selected redirects with alert" do
+    assert_no_difference("BggCollectionImport.count") do
+      assert_no_enqueued_jobs do
+        post bgg_import_games_path, params: {
+          step: "import",
+          username: "testuser",
+          game_names: { "999" => "New Game" },
+          game_image_urls: { "999" => "" }
+        }
+      end
     end
     assert_redirected_to games_path
     assert flash[:alert].present?

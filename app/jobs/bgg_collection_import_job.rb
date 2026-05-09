@@ -15,7 +15,9 @@ class BggCollectionImportJob < ApplicationJob
       next if existing.include?(item["bgg_id"].to_i)
       game = Game.new(name: item["name"], bgg_url: item["bgg_url"])
       attach_image(game, item["image_url"]) if item["image_url"].present?
-      game.save
+      unless game.save
+        Rails.logger.error("BggCollectionImportJob: failed to save #{item["name"].inspect}: #{game.errors.full_messages.join(", ")}")
+      end
     end
   ensure
     BggCollectionImport.where(id: import_id).delete_all

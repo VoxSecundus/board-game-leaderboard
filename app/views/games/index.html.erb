@@ -34,7 +34,7 @@
       </svg>
       <span>
         Importing BGG collection<%= @pending_imports.many? ? "s" : "" %> for
-        <%= @pending_imports.map { |i| content_tag(:strong, i.username) }.reduce { |a, b| "#{a}, #{b}".html_safe } %>&thinsp;—
+        <%= safe_join(@pending_imports.map { |i| content_tag(:strong, i.username) }, ", ") %>&thinsp;—
         games will appear once the import finishes.
       </span>
     </div>

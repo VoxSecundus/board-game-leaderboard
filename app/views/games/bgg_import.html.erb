@@ -6,6 +6,7 @@
 
   <% if @items_with_status %>
     <%= form_with url: bgg_import_games_path, method: :post, data: { turbo: false } do |f| %>
+      <%= hidden_field_tag :step, "import" %>
       <%= hidden_field_tag :username, @username %>
 
       <% @items_with_status.each do |entry| %>

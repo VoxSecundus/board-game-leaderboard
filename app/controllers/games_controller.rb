@@ -19,7 +19,7 @@ class GamesController < ApplicationController
   end
 
   def bgg_import
-    if request.post? && params[:bgg_ids]
+    if request.post? && params[:step] == "import"
       if BggCollectionImport.exists?
         redirect_to games_path, alert: "An import is already in progress. Please wait for it to finish before starting another."
         return
@@ -30,6 +30,10 @@ class GamesController < ApplicationController
         { "bgg_id" => id.to_i, "name" => name,
           "image_url" => (params[:game_image_urls] || {})[id].to_s.presence,
           "bgg_url" => "https://boardgamegeek.com/boardgame/#{id}" }
+      end
+      if items.empty?
+        redirect_to games_path, alert: "No games were selected for import."
+        return
       end
       import = BggCollectionImport.create!(username: params[:username].to_s.strip)
       BggCollectionImportJob.perform_later(items, import.id)
