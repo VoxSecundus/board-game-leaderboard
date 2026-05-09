@@ -67,13 +67,23 @@
         </thead>
         <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
           <% @games.each do |game| %>
-            <tr>
+            <tr data-controller="navigate" data-navigate-url-value="<%= game_path(game) %>"
+                data-action="click->navigate#go"
+                class="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center gap-3">
                   <% if game.box_art.attached? %>
-                    <%= image_tag game.box_art.variant(resize_to_fit: [64, 64]),
-                        class: "rounded object-contain bg-gray-100 dark:bg-gray-700",
-                        width: 32, height: 32, alt: "#{game.name} box art" %>
+                    <div data-controller="thumbnail" class="relative w-8 h-8 shrink-0 rounded bg-gray-100 dark:bg-gray-700">
+                      <span data-thumbnail-target="placeholder" class="absolute inset-0 flex items-center justify-center text-xs font-light text-gray-300 dark:text-gray-600 select-none">?</span>
+                      <%= image_tag game.box_art.variant(resize_to_fit: [64, 64]),
+                          class: "absolute inset-0 w-full h-full rounded object-contain invisible",
+                          data: { thumbnail_target: "image", action: "load->thumbnail#show error->thumbnail#error" },
+                          alt: "#{game.name} box art" %>
+                    </div>
+                  <% else %>
+                    <div class="w-8 h-8 shrink-0 rounded bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                      <span class="text-xs font-light text-gray-300 dark:text-gray-600 select-none">?</span>
+                    </div>
                   <% end %>
                   <%= link_to game.name, game_path(game),
                       class: "text-sm font-medium text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400" %>
