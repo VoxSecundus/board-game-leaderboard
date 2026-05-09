@@ -55,7 +55,9 @@
         </thead>
         <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
           <% @locations.each do |location| %>
-            <tr>
+            <tr data-controller="navigate" data-navigate-url-value="<%= location_path(location) %>"
+                data-action="click->navigate#go"
+                class="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50">
               <td class="px-6 py-4 whitespace-nowrap">
                 <%= link_to location.name, location_path(location),
                     class: "text-sm font-medium text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400" %>

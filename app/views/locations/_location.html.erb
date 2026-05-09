@@ -1,4 +1,6 @@
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow">
+<div data-controller="navigate" data-navigate-url-value="<%= location_path(location) %>"
+     data-action="click->navigate#go"
+     class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
   <div class="p-4">
     <div class="flex items-start justify-between gap-2">
       <div class="min-w-0">

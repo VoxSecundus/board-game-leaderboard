@@ -49,7 +49,9 @@
         </thead>
         <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
           <% @players.each do |player| %>
-            <tr>
+            <tr data-controller="navigate" data-navigate-url-value="<%= player_path(player) %>"
+                data-action="click->navigate#go"
+                class="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center gap-3">
                   <%= player_avatar(player) %>
