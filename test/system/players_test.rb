@@ -21,6 +21,25 @@ class PlayersTest < ApplicationSystemTestCase
     assert_selector "[data-view-toggle-target='tableView']", visible: :hidden
   end
 
+  test "clicking a player card navigates to the player" do
+    player = players(:alice)
+    visit players_url
+    within find("div[data-navigate-url-value='#{player_path(player)}']") do
+      find("p", text: /Added/).click
+    end
+    assert_current_path player_path(player)
+  end
+
+  test "clicking a player table row navigates to the player" do
+    player = players(:alice)
+    visit players_url
+    find("button[aria-label='Table view']").click
+    within "tr[data-navigate-url-value='#{player_path(player)}']" do
+      find("td", text: player.created_at.to_date.to_s).click
+    end
+    assert_current_path player_path(player)
+  end
+
   test "deleting a player from show page" do
     player = players(:bob)
     visit player_url(player)

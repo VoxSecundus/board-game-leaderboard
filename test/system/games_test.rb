@@ -21,6 +21,35 @@ class GamesTest < ApplicationSystemTestCase
     assert_selector "[data-view-toggle-target='gridView']", visible: :hidden
   end
 
+  test "clicking a game card navigates to the game" do
+    game = games(:catan)
+    visit games_url
+    within find("div[data-navigate-url-value='#{game_path(game)}']") do
+      find("p", text: /Added/).click
+    end
+    assert_current_path game_path(game)
+  end
+
+  test "clicking a game table row navigates to the game" do
+    game = games(:catan)
+    visit games_url
+    find("button[aria-label='Table view']").click
+    within "tr[data-navigate-url-value='#{game_path(game)}']" do
+      find("td", text: game.created_at.to_date.to_s).click
+    end
+    assert_current_path game_path(game)
+  end
+
+  test "clicking edit from a game table row goes to the edit page" do
+    game = games(:catan)
+    visit games_url
+    find("button[aria-label='Table view']").click
+    within "tr[data-navigate-url-value='#{game_path(game)}']" do
+      find("a[title='Edit']").click
+    end
+    assert_current_path edit_game_path(game)
+  end
+
   test "Fetch from BGG button fills in name and shows image preview" do
     result = BggFetcher::Result.new(
       name: "Catan",

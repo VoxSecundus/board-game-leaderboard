@@ -1,4 +1,6 @@
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow">
+<div data-controller="navigate" data-navigate-url-value="<%= player_path(player) %>"
+     data-action="click->navigate#go"
+     class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
   <div class="p-4 flex flex-col items-center gap-2 bg-gray-50 dark:bg-gray-700/50">
     <%= player_avatar(player, size: :lg) %>
   </div>
