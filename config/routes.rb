@@ -5,7 +5,11 @@ Rails.application.routes.draw do
 
   resources :players
   resources :games do
-    collection { get :bgg_lookup }
+    collection do
+      get  :bgg_lookup
+      get  :bgg_import
+      post :bgg_import
+    end
   end
   resources :locations
   resources :plays
