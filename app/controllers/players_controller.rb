@@ -4,7 +4,9 @@ class PlayersController < ApplicationController
   before_action :set_player, only: %i[show edit update destroy]
 
   def index
-    @pagy, @players = pagy(Player.order(sort_column => sort_direction))
+    scope = Player.order(sort_column => sort_direction)
+    scope = scope.where("name LIKE ?", "%#{Player.sanitize_sql_like(params[:q].strip)}%") if params[:q].present?
+    @pagy, @players = pagy(scope)
   end
 
   def show

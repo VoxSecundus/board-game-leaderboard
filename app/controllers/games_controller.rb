@@ -4,7 +4,9 @@ class GamesController < ApplicationController
   before_action :set_game, only: %i[show edit update destroy]
 
   def index
-    @pagy, @games = pagy(Game.order(sort_column => sort_direction))
+    scope = Game.order(sort_column => sort_direction)
+    scope = scope.where("name LIKE ?", "%#{Game.sanitize_sql_like(params[:q].strip)}%") if params[:q].present?
+    @pagy, @games = pagy(scope)
     @pending_imports = BggCollectionImport.order(:created_at)
   end
 

@@ -118,4 +118,29 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     refute_includes response.body, "Zzz Pagination"
   end
+
+  test "GET /locations filters by name" do
+    get locations_path, params: { q: "Lon" }
+    assert_response :success
+    assert_includes response.body, "London"
+    refute_includes response.body, "Living Room"
+  end
+
+  test "GET /locations with blank q returns all records" do
+    get locations_path, params: { q: "" }
+    assert_response :success
+    assert_includes response.body, "London"
+    assert_includes response.body, "Living Room"
+  end
+
+  test "GET /locations search is case-insensitive" do
+    get locations_path, params: { q: "london" }
+    assert_response :success
+    assert_includes response.body, "London"
+  end
+
+  test "GET /locations search with wildcard characters does not crash" do
+    get locations_path, params: { q: "100%" }
+    assert_response :success
+  end
 end

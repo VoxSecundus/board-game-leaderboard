@@ -2,7 +2,9 @@ class LocationsController < ApplicationController
   before_action :set_location, only: %i[show edit update destroy]
 
   def index
-    @pagy, @locations = pagy(Location.order(sort_column => sort_direction))
+    scope = Location.order(sort_column => sort_direction)
+    scope = scope.where("name LIKE ?", "%#{Location.sanitize_sql_like(params[:q].strip)}%") if params[:q].present?
+    @pagy, @locations = pagy(scope)
   end
 
   def show; end
