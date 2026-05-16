@@ -56,7 +56,7 @@ class PlaysController < ApplicationController
       render :bulk_new, status: :unprocessable_entity
     else
       count = plays.size
-      redirect_to plays_path, notice: "#{count} #{count == 1 ? 'play' : 'plays'} recorded."
+      redirect_to plays_path, notice: "#{helpers.pluralize(count, 'play')} recorded."
     end
   end
 

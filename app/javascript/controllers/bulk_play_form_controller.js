@@ -128,7 +128,7 @@ export default class extends Controller {
 
       metaContainer.insertAdjacentHTML("beforeend", `
         <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
-          <span class="flex-1 text-sm text-gray-900 dark:text-white font-medium">${playerName}</span>
+          <span class="flex-1 text-sm text-gray-900 dark:text-white font-medium">${this.#escapeHtml(playerName)}</span>
           <input type="hidden" name="plays[${playIdx}][play_participants_attributes][${partIdx}][player_id]" value="${playerId}">
           <div class="w-24">
             <input type="number"
@@ -147,7 +147,19 @@ export default class extends Controller {
     })
 
     const hasMetaParticipants = metaContainer.children.length > 0
+    if (hasMetaParticipants) {
+      const extra = playEl.querySelector("[data-bulk-play-form-target='playParticipantsContainer']")
+      if (extra) extra.innerHTML = ""
+    }
     extraSection.classList.toggle("hidden", hasMetaParticipants)
     playEl.dataset.playParticipantIndex = metaRows.length
+  }
+
+  #escapeHtml(str) {
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
   }
 }
