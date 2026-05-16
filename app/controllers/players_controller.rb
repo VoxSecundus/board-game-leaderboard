@@ -1,11 +1,11 @@
 class PlayersController < ApplicationController
   include HistorySortable
+  include NameSearchable
 
   before_action :set_player, only: %i[show edit update destroy]
 
   def index
-    scope = Player.order(sort_column => sort_direction)
-    scope = scope.where("name LIKE ?", "%#{Player.sanitize_sql_like(params[:q].strip)}%") if params[:q].present?
+    scope = apply_name_search(Player.order(sort_column => sort_direction), Player)
     @pagy, @players = pagy(scope)
   end
 

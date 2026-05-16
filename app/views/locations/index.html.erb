@@ -24,27 +24,12 @@
     </div>
   </div>
 
-  <form action="<%= locations_path %>" method="get" data-controller="search" class="mb-6">
-    <input type="hidden" name="sort" value="<%= params[:sort] %>">
-    <input type="hidden" name="dir"  value="<%= params[:dir]  %>">
-    <div class="relative max-w-sm">
-      <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-        <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
-        </svg>
-      </div>
-      <input type="text" name="q" value="<%= params[:q] %>"
-             placeholder="Search by name…"
-             autocomplete="off"
-             data-action="input->search#submit"
-             class="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 pl-9 pr-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-    </div>
-  </form>
+  <%= render "shared/search_form", url: locations_path, label: "Search locations by name" %>
 
   <% if @locations.empty? %>
     <div class="text-center py-16 text-gray-500 dark:text-gray-400">
-      <% if params[:q].present? %>
-        <p class="text-lg">No locations match "<%= params[:q] %>".</p>
+      <% if @query.present? %>
+        <p class="text-lg">No locations match "<%= @query %>".</p>
       <% else %>
         <p class="text-lg mb-4">No locations yet.</p>
         <%= link_to "Add the first location", new_location_path, class: "text-indigo-600 dark:text-indigo-400 hover:underline" %>

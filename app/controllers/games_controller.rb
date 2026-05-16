@@ -1,11 +1,11 @@
 class GamesController < ApplicationController
   include HistorySortable
+  include NameSearchable
 
   before_action :set_game, only: %i[show edit update destroy]
 
   def index
-    scope = Game.order(sort_column => sort_direction)
-    scope = scope.where("name LIKE ?", "%#{Game.sanitize_sql_like(params[:q].strip)}%") if params[:q].present?
+    scope = apply_name_search(Game.order(sort_column => sort_direction), Game)
     @pagy, @games = pagy(scope)
     @pending_imports = BggCollectionImport.order(:created_at)
   end
