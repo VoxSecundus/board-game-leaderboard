@@ -140,7 +140,9 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /locations search with wildcard characters does not crash" do
+    Location.create!(name: "100 Downing Street")
     get locations_path, params: { q: "100%" }
     assert_response :success
+    refute_includes response.body, "100 Downing Street"
   end
 end

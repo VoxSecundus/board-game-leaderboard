@@ -171,7 +171,9 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /players search with wildcard characters does not crash" do
+    Player.create!(name: "100 Points")
     get players_path, params: { q: "100%" }
     assert_response :success
+    refute_includes response.body, "100 Points"
   end
 end

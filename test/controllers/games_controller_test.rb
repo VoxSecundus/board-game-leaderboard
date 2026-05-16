@@ -400,7 +400,9 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "GET /games search with wildcard characters does not crash" do
+    Game.create!(name: "1000 Blank Cards")
     get games_path, params: { q: "100%" }
     assert_response :success
+    refute_includes response.body, "1000 Blank Cards"
   end
 end
