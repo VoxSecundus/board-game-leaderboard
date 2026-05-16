@@ -39,4 +39,25 @@ class LocationsTest < ApplicationSystemTestCase
     end
     assert_current_path location_path(location)
   end
+
+  test "searching locations by name filters results" do
+    visit locations_url
+    fill_in placeholder: "Search by name…", with: "Lon"
+    assert_text "London"
+    assert_no_text "Living Room"
+  end
+
+  test "clearing the search restores all locations" do
+    visit locations_url(q: "Lon")
+    assert_no_text "Living Room"
+    fill_in placeholder: "Search by name…", with: ""
+    assert_text "London"
+    assert_text "Living Room"
+  end
+
+  test "no-match search shows empty state message" do
+    visit locations_url
+    fill_in placeholder: "Search by name…", with: "zzznomatch"
+    assert_text 'No locations match "zzznomatch"'
+  end
 end

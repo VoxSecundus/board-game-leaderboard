@@ -149,4 +149,31 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     refute_includes response.body, "Zzz Pagination"
   end
+
+  test "GET /players filters by name" do
+    get players_path, params: { q: "Ali" }
+    assert_response :success
+    assert_includes response.body, "Alice"
+    refute_includes response.body, "Bob"
+  end
+
+  test "GET /players with blank q returns all records" do
+    get players_path, params: { q: "" }
+    assert_response :success
+    assert_includes response.body, "Alice"
+    assert_includes response.body, "Bob"
+  end
+
+  test "GET /players search is case-insensitive" do
+    get players_path, params: { q: "ali" }
+    assert_response :success
+    assert_includes response.body, "Alice"
+  end
+
+  test "GET /players search with wildcard characters does not crash" do
+    Player.create!(name: "100 Points")
+    get players_path, params: { q: "100%" }
+    assert_response :success
+    refute_includes response.body, "100 Points"
+  end
 end

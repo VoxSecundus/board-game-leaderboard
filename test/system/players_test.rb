@@ -50,4 +50,25 @@ class PlayersTest < ApplicationSystemTestCase
     assert_text "Player deleted."
     assert_no_text player.name
   end
+
+  test "searching players by name filters results" do
+    visit players_url
+    fill_in placeholder: "Search by name…", with: "Ali"
+    assert_text "Alice"
+    assert_no_text "Bob"
+  end
+
+  test "clearing the search restores all players" do
+    visit players_url(q: "Ali")
+    assert_no_text "Bob"
+    fill_in placeholder: "Search by name…", with: ""
+    assert_text "Alice"
+    assert_text "Bob"
+  end
+
+  test "no-match search shows empty state message" do
+    visit players_url
+    fill_in placeholder: "Search by name…", with: "zzznomatch"
+    assert_text 'No players match "zzznomatch"'
+  end
 end

@@ -24,10 +24,16 @@
     </div>
   </div>
 
+  <%= render "shared/search_form", url: locations_path, label: "Search locations by name" %>
+
   <% if @locations.empty? %>
     <div class="text-center py-16 text-gray-500 dark:text-gray-400">
-      <p class="text-lg mb-4">No locations yet.</p>
-      <%= link_to "Add the first location", new_location_path, class: "text-indigo-600 dark:text-indigo-400 hover:underline" %>
+      <% if @query.present? %>
+        <p class="text-lg">No locations match "<%= @query %>".</p>
+      <% else %>
+        <p class="text-lg mb-4">No locations yet.</p>
+        <%= link_to "Add the first location", new_location_path, class: "text-indigo-600 dark:text-indigo-400 hover:underline" %>
+      <% end %>
     </div>
   <% else %>
     <div data-view-toggle-target="gridView" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">

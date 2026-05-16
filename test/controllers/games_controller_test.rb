@@ -377,4 +377,32 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     result = controller.send(:fetch_following_redirects, "https://cf.geekdo-images.com/pic.jpg")
     assert_nil result
   end
+
+  test "GET /games filters by name" do
+    get games_path, params: { q: "Che" }
+    assert_response :success
+    assert_includes response.body, "Chess"
+    refute_includes response.body, "Catan"
+    refute_includes response.body, "Monopoly"
+  end
+
+  test "GET /games with blank q returns all records" do
+    get games_path, params: { q: "" }
+    assert_response :success
+    assert_includes response.body, "Chess"
+    assert_includes response.body, "Catan"
+  end
+
+  test "GET /games search is case-insensitive" do
+    get games_path, params: { q: "chess" }
+    assert_response :success
+    assert_includes response.body, "Chess"
+  end
+
+  test "GET /games search with wildcard characters does not crash" do
+    Game.create!(name: "1000 Blank Cards")
+    get games_path, params: { q: "100%" }
+    assert_response :success
+    refute_includes response.body, "1000 Blank Cards"
+  end
 end

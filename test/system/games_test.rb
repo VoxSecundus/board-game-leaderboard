@@ -97,4 +97,26 @@ class GamesTest < ApplicationSystemTestCase
 
     assert_equal "", hidden.value
   end
+
+  test "searching games by name filters results" do
+    visit games_url
+    fill_in placeholder: "Search by name…", with: "Che"
+    assert_text "Chess"
+    assert_no_text "Catan"
+    assert_no_text "Monopoly"
+  end
+
+  test "clearing the search restores all games" do
+    visit games_url(q: "Che")
+    assert_no_text "Catan"
+    fill_in placeholder: "Search by name…", with: ""
+    assert_text "Chess"
+    assert_text "Catan"
+  end
+
+  test "no-match search shows empty state message" do
+    visit games_url
+    fill_in placeholder: "Search by name…", with: "zzznomatch"
+    assert_text 'No games match "zzznomatch"'
+  end
 end

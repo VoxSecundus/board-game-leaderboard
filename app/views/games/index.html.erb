@@ -40,10 +40,16 @@
     </div>
   <% end %>
 
+  <%= render "shared/search_form", url: games_path, label: "Search games by name" %>
+
   <% if @games.empty? %>
     <div class="text-center py-16 text-gray-500 dark:text-gray-400">
-      <p class="text-lg mb-4">No games yet.</p>
-      <%= link_to "Add the first game", new_game_path, class: "text-indigo-600 dark:text-indigo-400 hover:underline" %>
+      <% if @query.present? %>
+        <p class="text-lg">No games match "<%= @query %>".</p>
+      <% else %>
+        <p class="text-lg mb-4">No games yet.</p>
+        <%= link_to "Add the first game", new_game_path, class: "text-indigo-600 dark:text-indigo-400 hover:underline" %>
+      <% end %>
     </div>
   <% else %>
     <div data-view-toggle-target="gridView" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">

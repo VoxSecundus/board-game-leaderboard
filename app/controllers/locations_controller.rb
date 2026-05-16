@@ -1,8 +1,11 @@
 class LocationsController < ApplicationController
+  include NameSearchable
+
   before_action :set_location, only: %i[show edit update destroy]
 
   def index
-    @pagy, @locations = pagy(Location.order(sort_column => sort_direction))
+    scope = apply_name_search(Location.order(sort_column => sort_direction))
+    @pagy, @locations = pagy(scope)
   end
 
   def show; end

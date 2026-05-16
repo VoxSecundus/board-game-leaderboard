@@ -6,7 +6,10 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   def log_in_via_browser
     SessionsController.any_instance.stubs(:valid_password?).returns(true)
     visit login_url
+    page.driver.browser.manage.delete_all_cookies
+    visit login_url
     fill_in "Password", with: "anything"
     click_button "Sign in"
+    page.execute_script("localStorage.clear()")
   end
 end
