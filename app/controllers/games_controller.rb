@@ -5,7 +5,7 @@ class GamesController < ApplicationController
   before_action :set_game, only: %i[show edit update destroy]
 
   def index
-    scope = apply_name_search(Game.order(sort_column => sort_direction), Game)
+    scope = apply_name_search(Game.order(sort_column => sort_direction))
     @pagy, @games = pagy(scope)
     @pending_imports = BggCollectionImport.order(:created_at)
   end

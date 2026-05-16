@@ -3,9 +3,9 @@ module NameSearchable
 
   private
 
-  def apply_name_search(scope, model)
+  def apply_name_search(scope)
     @query = params[:q].to_s.strip
     return scope if @query.blank?
-    scope.where("name LIKE ?", "%#{model.sanitize_sql_like(@query)}%")
+    scope.where("name LIKE ?", "%#{ActiveRecord::Base.sanitize_sql_like(@query)}%")
   end
 end

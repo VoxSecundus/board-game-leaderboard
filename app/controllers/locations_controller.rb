@@ -4,7 +4,7 @@ class LocationsController < ApplicationController
   before_action :set_location, only: %i[show edit update destroy]
 
   def index
-    scope = apply_name_search(Location.order(sort_column => sort_direction), Location)
+    scope = apply_name_search(Location.order(sort_column => sort_direction))
     @pagy, @locations = pagy(scope)
   end
 

@@ -5,7 +5,7 @@ class PlayersController < ApplicationController
   before_action :set_player, only: %i[show edit update destroy]
 
   def index
-    scope = apply_name_search(Player.order(sort_column => sort_direction), Player)
+    scope = apply_name_search(Player.order(sort_column => sort_direction))
     @pagy, @players = pagy(scope)
   end
 
