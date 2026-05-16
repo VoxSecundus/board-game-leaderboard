@@ -178,6 +178,48 @@ class PlaysControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Play deleted.", flash[:notice]
   end
 
+  test "GET /plays/bulk_new returns 200" do
+    get bulk_new_plays_path
+    assert_response :success
+  end
+
+  test "POST /plays/bulk_create with valid plays creates them and redirects" do
+    assert_difference("Play.count", 2) do
+      post bulk_create_plays_path, params: {
+        plays: {
+          "0" => { game_id: games(:chess).id, date: Date.today },
+          "1" => {
+            game_id: games(:catan).id,
+            date: Date.today,
+            play_participants_attributes: {
+              "0" => { player_id: players(:alice).id, score: 10, winner: "1" }
+            }
+          }
+        }
+      }
+    end
+    assert_redirected_to plays_path
+    assert_equal "2 plays recorded.", flash[:notice]
+  end
+
+  test "POST /plays/bulk_create with one invalid play returns 422 and creates no records" do
+    assert_no_difference("Play.count") do
+      post bulk_create_plays_path, params: {
+        plays: {
+          "0" => { game_id: games(:chess).id, date: Date.today },
+          "1" => { date: Date.today }
+        }
+      }
+    end
+    assert_response :unprocessable_entity
+  end
+
+  test "POST /plays/bulk_create with no plays redirects with alert" do
+    post bulk_create_plays_path
+    assert_redirected_to plays_path
+    assert_equal "No plays to record.", flash[:alert]
+  end
+
   test "unauthenticated access redirects to login" do
     delete logout_path
     get plays_path

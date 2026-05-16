@@ -28,6 +28,30 @@ class PlaysController < ApplicationController
     end
   end
 
+  def bulk_new
+    @players   = Player.select(:id, :name).order(:name)
+    @games     = Game.select(:id, :name).order(:name)
+    @locations = Location.select(:id, :name).order(:name)
+  end
+
+  def bulk_create
+    play_attrs = params[:plays].present? ? params[:plays].values : []
+    if play_attrs.empty?
+      redirect_to plays_path, alert: "No plays to record." and return
+    end
+    plays = play_attrs.map { |p| Play.new(bulk_single_play_params(p)) }
+    if plays.all?(&:valid?)
+      Play.transaction { plays.each(&:save!) }
+      count = plays.size
+      redirect_to plays_path, notice: "#{count} #{count == 1 ? 'play' : 'plays'} recorded."
+    else
+      @players   = Player.select(:id, :name).order(:name)
+      @games     = Game.select(:id, :name).order(:name)
+      @locations = Location.select(:id, :name).order(:name)
+      render :bulk_new, status: :unprocessable_entity
+    end
+  end
+
   def edit
     @players = Player.order(:name)
     @games = Game.order(:name)
@@ -54,6 +78,11 @@ class PlaysController < ApplicationController
 
   def set_play
     @play = Play.find(params[:id])
+  end
+
+  def bulk_single_play_params(p)
+    p.permit(:game_id, :location_id, :date, :notes,
+      play_participants_attributes: [ :player_id, :score, :winner ])
   end
 
   def play_params
