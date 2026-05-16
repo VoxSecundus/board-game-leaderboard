@@ -35,20 +35,28 @@ class PlaysController < ApplicationController
   end
 
   def bulk_create
-    play_attrs = params[:plays].present? ? params[:plays].values : []
+    play_attrs = params[:plays].is_a?(ActionController::Parameters) ? params[:plays].values : []
     if play_attrs.empty?
       redirect_to plays_path, alert: "No plays to record." and return
     end
     plays = play_attrs.map { |p| Play.new(bulk_single_play_params(p)) }
-    if plays.all?(&:valid?)
-      Play.transaction { plays.each(&:save!) }
-      count = plays.size
-      redirect_to plays_path, notice: "#{count} #{count == 1 ? 'play' : 'plays'} recorded."
-    else
+    errors = false
+    Play.transaction do
+      plays.each do |play|
+        unless play.save
+          errors = true
+          raise ActiveRecord::Rollback
+        end
+      end
+    end
+    if errors
       @players   = Player.select(:id, :name).order(:name)
       @games     = Game.select(:id, :name).order(:name)
       @locations = Location.select(:id, :name).order(:name)
       render :bulk_new, status: :unprocessable_entity
+    else
+      count = plays.size
+      redirect_to plays_path, notice: "#{count} #{count == 1 ? 'play' : 'plays'} recorded."
     end
   end
 
@@ -81,6 +89,7 @@ class PlaysController < ApplicationController
   end
 
   def bulk_single_play_params(p)
+    # :_destroy omitted — bulk entry only creates; rows are removed client-side before submit
     p.permit(:game_id, :location_id, :date, :notes,
       play_participants_attributes: [ :player_id, :score, :winner ])
   end
