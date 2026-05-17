@@ -46,20 +46,13 @@ class PlaysController < ApplicationController
     end
     permitted = play_attrs.map { |p| bulk_single_play_params(p) }
     plays = permitted.map { |p| Play.new(p) }
-    errors = false
     Play.transaction do
-      plays.each do |play|
-        unless play.save
-          errors = true
-          raise ActiveRecord::Rollback
-        end
-      end
+      plays.each { |play| raise ActiveRecord::Rollback unless play.save }
     end
-    if errors
-      redirect_to bulk_new_plays_path, alert: "One or more plays could not be saved — please check the form and try again."
+    if plays.all?(&:persisted?)
+      redirect_to plays_path, notice: "#{helpers.pluralize(plays.size, 'play')} recorded."
     else
-      count = plays.size
-      redirect_to plays_path, notice: "#{helpers.pluralize(count, 'play')} recorded."
+      redirect_to bulk_new_plays_path, alert: "One or more plays could not be saved — please check the form and try again."
     end
   end
 
