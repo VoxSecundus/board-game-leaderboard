@@ -32,12 +32,14 @@ class PlaysController < ApplicationController
     @players   = Player.select(:id, :name).order(:name)
     @games     = Game.select(:id, :name).order(:name)
     @locations = Location.select(:id, :name).order(:name)
+    @submitted_plays = session.delete(:bulk_plays_restore)
   end
 
   def bulk_create
     play_attrs = params[:plays].is_a?(ActionController::Parameters) ? params[:plays].values : []
     if play_attrs.empty?
-      redirect_to plays_path, alert: "No plays to record." and return
+      redirect_to bulk_new_plays_path, alert: "No plays to record."
+      return
     end
     plays = play_attrs.map { |p| Play.new(bulk_single_play_params(p)) }
     errors = false
@@ -50,10 +52,8 @@ class PlaysController < ApplicationController
       end
     end
     if errors
-      @players   = Player.select(:id, :name).order(:name)
-      @games     = Game.select(:id, :name).order(:name)
-      @locations = Location.select(:id, :name).order(:name)
-      render :bulk_new, status: :unprocessable_entity
+      session[:bulk_plays_restore] = play_attrs.map { |p| bulk_single_play_params(p).to_h }
+      redirect_to bulk_new_plays_path, alert: "One or more plays could not be saved — please check the form and try again."
     else
       count = plays.size
       redirect_to plays_path, notice: "#{helpers.pluralize(count, 'play')} recorded."

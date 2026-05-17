@@ -202,7 +202,7 @@ class PlaysControllerTest < ActionDispatch::IntegrationTest
     assert_equal "2 plays recorded.", flash[:notice]
   end
 
-  test "POST /plays/bulk_create with one invalid play returns 422 and creates no records" do
+  test "POST /plays/bulk_create with one invalid play creates no records and redirects to bulk entry page" do
     assert_no_difference("Play.count") do
       post bulk_create_plays_path, params: {
         plays: {
@@ -211,12 +211,20 @@ class PlaysControllerTest < ActionDispatch::IntegrationTest
         }
       }
     end
-    assert_response :unprocessable_entity
+    assert_redirected_to bulk_new_plays_path
   end
 
-  test "POST /plays/bulk_create with no plays redirects with alert" do
+  test "POST /plays/bulk_create with invalid play redirects to bulk entry page with alert" do
+    post bulk_create_plays_path, params: {
+      plays: { "0" => { date: Date.today } }
+    }
+    assert_redirected_to bulk_new_plays_path
+    assert_not_nil flash[:alert]
+  end
+
+  test "POST /plays/bulk_create with no plays redirects to bulk new page with alert" do
     post bulk_create_plays_path
-    assert_redirected_to plays_path
+    assert_redirected_to bulk_new_plays_path
     assert_equal "No plays to record.", flash[:alert]
   end
 
