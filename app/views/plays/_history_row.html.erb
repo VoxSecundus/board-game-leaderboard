@@ -1,6 +1,6 @@
 <% show_game = local_assigns.fetch(:show_game, false) %>
 <% highlight_player = local_assigns[:highlight_player] %>
-<% pps = play.play_participants.to_a %>
+<% pps = play.play_participants.sort_by { |pp| pp.player.name } %>
 <% row_class = if highlight_player
   my_pp      = pps.find { |pp| pp.player_id == highlight_player.id }
   anyone_won = pps.any?(&:winner?)
