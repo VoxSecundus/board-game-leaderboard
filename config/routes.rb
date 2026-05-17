@@ -12,7 +12,12 @@ Rails.application.routes.draw do
     end
   end
   resources :locations
-  resources :plays
+  resources :plays do
+    collection do
+      get  :bulk_new
+      post :bulk_create
+    end
+  end
 
   get "compare", to: "comparisons#show", as: :compare
 

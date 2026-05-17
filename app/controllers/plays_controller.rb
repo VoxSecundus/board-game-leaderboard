@@ -28,6 +28,34 @@ class PlaysController < ApplicationController
     end
   end
 
+  def bulk_new
+    unless Game.exists?
+      redirect_to plays_path, alert: "Add a game before recording plays."
+      return
+    end
+    @players   = Player.select(:id, :name).order(:name)
+    @games     = Game.select(:id, :name).order(:name)
+    @locations = Location.select(:id, :name).order(:name)
+  end
+
+  def bulk_create
+    play_attrs = params[:plays].is_a?(ActionController::Parameters) ? params[:plays].values : []
+    if play_attrs.empty?
+      redirect_to bulk_new_plays_path, alert: "No plays to record."
+      return
+    end
+    permitted = play_attrs.map { |p| bulk_single_play_params(p) }
+    plays = permitted.map { |p| Play.new(p) }
+    Play.transaction do
+      plays.each { |play| raise ActiveRecord::Rollback unless play.save }
+    end
+    if plays.all?(&:persisted?)
+      redirect_to plays_path, notice: "#{helpers.pluralize(plays.size, 'play')} recorded."
+    else
+      redirect_to bulk_new_plays_path, alert: "One or more plays could not be saved — please check the form and try again."
+    end
+  end
+
   def edit
     @players = Player.order(:name)
     @games = Game.order(:name)
@@ -54,6 +82,12 @@ class PlaysController < ApplicationController
 
   def set_play
     @play = Play.find(params[:id])
+  end
+
+  def bulk_single_play_params(p)
+    # :_destroy omitted — bulk entry only creates; rows are removed client-side before submit
+    p.permit(:game_id, :location_id, :date, :notes,
+      play_participants_attributes: [ :player_id, :score, :winner ])
   end
 
   def play_params

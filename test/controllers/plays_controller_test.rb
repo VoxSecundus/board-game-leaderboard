@@ -178,6 +178,62 @@ class PlaysControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Play deleted.", flash[:notice]
   end
 
+  test "GET /plays/bulk_new returns 200" do
+    get bulk_new_plays_path
+    assert_response :success
+  end
+
+  test "GET /plays/bulk_new with no games redirects to plays index" do
+    Game.destroy_all
+    get bulk_new_plays_path
+    assert_redirected_to plays_path
+  end
+
+  test "POST /plays/bulk_create with valid plays creates them and redirects" do
+    assert_difference("Play.count", 2) do
+      post bulk_create_plays_path, params: {
+        plays: {
+          "0" => { game_id: games(:chess).id, date: Date.today },
+          "1" => {
+            game_id: games(:catan).id,
+            date: Date.today,
+            play_participants_attributes: {
+              "0" => { player_id: players(:alice).id, score: 10, winner: "1" }
+            }
+          }
+        }
+      }
+    end
+    assert_redirected_to plays_path
+    assert_equal "2 plays recorded.", flash[:notice]
+  end
+
+  test "POST /plays/bulk_create with one invalid play creates no records and redirects to bulk entry page" do
+    assert_no_difference("Play.count") do
+      post bulk_create_plays_path, params: {
+        plays: {
+          "0" => { game_id: games(:chess).id, date: Date.today },
+          "1" => { date: Date.today }
+        }
+      }
+    end
+    assert_redirected_to bulk_new_plays_path
+  end
+
+  test "POST /plays/bulk_create with invalid play redirects to bulk entry page with alert" do
+    post bulk_create_plays_path, params: {
+      plays: { "0" => { date: Date.today } }
+    }
+    assert_redirected_to bulk_new_plays_path
+    assert_not_nil flash[:alert]
+  end
+
+  test "POST /plays/bulk_create with no plays redirects to bulk new page with alert" do
+    post bulk_create_plays_path
+    assert_redirected_to bulk_new_plays_path
+    assert_equal "No plays to record.", flash[:alert]
+  end
+
   test "unauthenticated access redirects to login" do
     delete logout_path
     get plays_path
