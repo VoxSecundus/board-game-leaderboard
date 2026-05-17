@@ -8,11 +8,8 @@ export default class extends Controller {
     "playParticipantsContainer", "playParticipantTemplate"
   ]
 
-  static values = { initialPlays: Array }
-
   connect() {
     this.playIndex = 0
-    this.initialPlaysValue.forEach(playData => this.#addPlayFromData(playData))
   }
 
   // ── Meta form handlers ───────────────────────────────────────────────
@@ -156,49 +153,6 @@ export default class extends Controller {
     }
     extraSection.classList.toggle("hidden", hasMetaParticipants)
     playEl.dataset.playParticipantIndex = metaRows.length
-  }
-
-  #addPlayFromData(playData) {
-    const idx = this.playIndex++
-    const html = this.playTemplateTarget.innerHTML.replace(/PLAY_IDX/g, idx)
-    const tmp = document.createElement("div")
-    tmp.innerHTML = html
-    const playEl = tmp.firstElementChild
-    playEl.querySelector("[data-play-number]").textContent = idx + 1
-    playEl.dataset.playIdx = idx
-    playEl.dataset.playParticipantIndex = "0"
-    this.playsContainerTarget.appendChild(playEl)
-    this.applyMetaToPlay(playEl)
-
-    const gameSelect = playEl.querySelector("[data-editable='game'] select")
-    if (gameSelect && playData.game_id) gameSelect.value = playData.game_id
-
-    const dateInput = playEl.querySelector("[data-editable='date'] input")
-    if (dateInput && playData.date) dateInput.value = playData.date
-
-    const locationSelect = playEl.querySelector("[data-editable='location'] select")
-    if (locationSelect && playData.location_id) locationSelect.value = playData.location_id
-
-    const notesTextarea = playEl.querySelector("[data-editable='notes'] textarea")
-    if (notesTextarea && playData.notes) notesTextarea.value = playData.notes
-
-    const participants = Object.values(playData.play_participants_attributes || {})
-    const template = playEl.querySelector("[data-bulk-play-form-target='playParticipantTemplate']")
-    const container = playEl.querySelector("[data-bulk-play-form-target='playParticipantsContainer']")
-    participants.forEach((part, partIdx) => {
-      const partHtml = template.innerHTML
-        .replace(/PLAY_IDX/g, idx)
-        .replace(/PART_IDX/g, partIdx)
-      container.insertAdjacentHTML("beforeend", partHtml)
-      const row = container.lastElementChild
-      const playerSelect = row.querySelector("select")
-      if (playerSelect && part.player_id) playerSelect.value = part.player_id
-      const scoreInput = row.querySelector("input[type='number']")
-      if (scoreInput && part.score) scoreInput.value = part.score
-      const winnerCheckbox = row.querySelector("input[type='checkbox']")
-      if (winnerCheckbox) winnerCheckbox.checked = part.winner === "1"
-    })
-    playEl.dataset.playParticipantIndex = participants.length
   }
 
   #escapeHtml(str) {

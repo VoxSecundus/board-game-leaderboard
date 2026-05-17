@@ -32,7 +32,6 @@ class PlaysController < ApplicationController
     @players   = Player.select(:id, :name).order(:name)
     @games     = Game.select(:id, :name).order(:name)
     @locations = Location.select(:id, :name).order(:name)
-    @submitted_plays = session.delete(:bulk_plays_restore)
   end
 
   def bulk_create
@@ -41,7 +40,8 @@ class PlaysController < ApplicationController
       redirect_to bulk_new_plays_path, alert: "No plays to record."
       return
     end
-    plays = play_attrs.map { |p| Play.new(bulk_single_play_params(p)) }
+    permitted = play_attrs.map { |p| bulk_single_play_params(p) }
+    plays = permitted.map { |p| Play.new(p) }
     errors = false
     Play.transaction do
       plays.each do |play|
@@ -52,7 +52,6 @@ class PlaysController < ApplicationController
       end
     end
     if errors
-      session[:bulk_plays_restore] = play_attrs.map { |p| bulk_single_play_params(p).to_h }
       redirect_to bulk_new_plays_path, alert: "One or more plays could not be saved — please check the form and try again."
     else
       count = plays.size
