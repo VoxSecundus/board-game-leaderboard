@@ -98,16 +98,17 @@ export default class extends Controller {
     const locked   = playEl.querySelector(`[data-locked='${field}']`)
     if (!editable || !locked) return
 
+    const input = locked.querySelector(`[data-input='${field}']`)
     if (value) {
       editable.classList.add("hidden")
       locked.classList.remove("hidden")
       const display = locked.querySelector(`[data-display='${field}']`)
-      const input   = locked.querySelector(`[data-input='${field}']`)
       if (display) display.textContent = displayText
-      if (input)   input.value = value
+      if (input) { input.value = value; input.disabled = false }
     } else {
       editable.classList.remove("hidden")
       locked.classList.add("hidden")
+      if (input) input.disabled = true
     }
   }
 

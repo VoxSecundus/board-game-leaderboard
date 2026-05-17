@@ -29,6 +29,10 @@ class PlaysController < ApplicationController
   end
 
   def bulk_new
+    unless Game.exists?
+      redirect_to plays_path, alert: "Add a game before recording plays."
+      return
+    end
     @players   = Player.select(:id, :name).order(:name)
     @games     = Game.select(:id, :name).order(:name)
     @locations = Location.select(:id, :name).order(:name)

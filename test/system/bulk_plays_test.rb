@@ -110,4 +110,18 @@ class BulkPlaysTest < ApplicationSystemTestCase
     assert_text "2 plays recorded."
     assert_equal initial_count + 2, Play.count
   end
+
+  test "submitting a play with per-play game selection creates it" do
+    visit bulk_new_plays_url
+    click_button "+ Add Play"
+    within all("[data-bulk-play-form-target='play']").last do
+      find("[data-editable='game'] select").find("option[value='#{games(:chess).id}']").select_option
+      find("[data-editable='date'] input").set(Date.today.to_s)
+    end
+    initial_count = Play.count
+    click_button "Record Plays"
+    assert_current_path plays_path
+    assert_text "1 play recorded."
+    assert_equal initial_count + 1, Play.count
+  end
 end

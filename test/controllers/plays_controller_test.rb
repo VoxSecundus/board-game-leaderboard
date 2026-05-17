@@ -183,6 +183,12 @@ class PlaysControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "GET /plays/bulk_new with no games redirects to plays index" do
+    Game.destroy_all
+    get bulk_new_plays_path
+    assert_redirected_to plays_path
+  end
+
   test "POST /plays/bulk_create with valid plays creates them and redirects" do
     assert_difference("Play.count", 2) do
       post bulk_create_plays_path, params: {
