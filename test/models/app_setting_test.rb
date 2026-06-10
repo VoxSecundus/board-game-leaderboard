@@ -15,12 +15,12 @@ class AppSettingTest < ActiveSupport::TestCase
   test "default_player_ids= coerces string IDs to integers" do
     setting = AppSetting.instance
     setting.default_player_ids = %w[1 2 3]
-    assert_equal [1, 2, 3], setting.default_player_ids
+    assert_equal [ 1, 2, 3 ], setting.default_player_ids
   end
 
   test "default_player_ids= drops blank values" do
     setting = AppSetting.instance
-    setting.default_player_ids = ["", "1", "", "2"]
-    assert_equal [1, 2], setting.default_player_ids
+    setting.default_player_ids = [ "", "1", "", "2" ]
+    assert_equal [ 1, 2 ], setting.default_player_ids
   end
 end
