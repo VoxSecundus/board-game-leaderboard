@@ -24,6 +24,44 @@
   </div>
   <p class="text-xs text-gray-500 dark:text-gray-400 -mt-4">Leave both blank if unknown.</p>
 
+  <div>
+    <%= f.label :tag_list, "Tags", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+    <% current_tag_names = location.tag_list.to_s.split(",").map { |t| t.strip.downcase }.reject(&:empty?) %>
+    <% available_tags = Tag.joins(:taggings).where(taggings: { taggable_type: location.class.name }).distinct.order(:name).pluck(:name) %>
+    <div data-controller="tag-input" class="space-y-2">
+      <%= f.hidden_field :tag_list, value: current_tag_names.join(","), data: { "tag-input-target": "hidden" } %>
+      <div class="flex flex-wrap items-center gap-1.5 min-h-[2.5rem] px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 cursor-text"
+           data-tag-input-target="chips"
+           onclick="this.querySelector('input')?.focus()">
+        <% current_tag_names.each do |name| %>
+          <span data-chip="<%= name %>"
+                class="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300">
+            <%= name %><button type="button" data-action="tag-input#removeChip"
+                               class="ml-1 hover:text-red-600 dark:hover:text-red-400 font-bold leading-none"
+                               aria-label="Remove <%= name %>">&times;</button>
+          </span>
+        <% end %>
+        <input type="text" placeholder="<%= current_tag_names.any? ? 'Add more…' : 'Type a tag and press Enter…' %>"
+               data-tag-input-target="input"
+               data-action="keydown->tag-input#addFromInput blur->tag-input#addFromInput"
+               class="flex-1 min-w-[8rem] text-sm bg-transparent border-0 outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 p-0">
+      </div>
+      <% if available_tags.any? %>
+        <div class="flex flex-wrap gap-1">
+          <% available_tags.each do |name| %>
+            <button type="button"
+                    data-tag="<%= name %>"
+                    data-action="tag-input#toggleExisting"
+                    data-tag-input-target="existing"
+                    class="text-xs font-medium px-2 py-0.5 rounded-full transition-colors">
+              <%= name %>
+            </button>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
   <div class="flex items-center gap-3">
     <%= f.submit location.new_record? ? "Create Location" : "Update Location",
         class: "rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 px-4 transition-colors cursor-pointer" %>

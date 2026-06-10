@@ -5,6 +5,8 @@ class LocationsController < ApplicationController
 
   def index
     scope = apply_name_search(Location.order(sort_column => sort_direction))
+    scope = scope.tagged_with(params[:tag]) if params[:tag].present?
+    @tag_filter = params[:tag].presence
     @pagy, @locations = pagy(scope)
   end
 
@@ -45,7 +47,7 @@ class LocationsController < ApplicationController
   end
 
   def location_params
-    params.require(:location).permit(:name, :latitude, :longitude)
+    params.require(:location).permit(:name, :latitude, :longitude, :tag_list)
   end
 
   SORTABLE_COLUMNS = %w[name latitude longitude created_at].freeze

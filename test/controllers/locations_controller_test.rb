@@ -145,4 +145,41 @@ class LocationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     refute_includes response.body, "100 Downing Street"
   end
+
+  test "POST /locations with tag_list creates location with tags" do
+    post locations_path, params: { location: { name: "Office", tag_list: "work, meeting" } }
+    location = Location.last
+    assert_equal [ "meeting", "work" ], location.tags.order(:name).pluck(:name)
+  end
+
+  test "PATCH /locations/:id with tag_list updates tags" do
+    patch location_path(@location), params: { location: { name: @location.name, tag_list: "home, cosy" } }
+    assert_redirected_to location_path(@location)
+    assert_equal [ "cosy", "home" ], @location.reload.tags.order(:name).pluck(:name)
+  end
+
+  test "GET /locations?tag= filters by tag" do
+    get locations_path, params: { tag: "home" }
+    assert_response :success
+    assert_includes response.body, "Living Room"
+    refute_includes response.body, "London"
+  end
+
+  test "GET /locations?tag= is case-insensitive" do
+    get locations_path, params: { tag: "Home" }
+    assert_response :success
+    assert_includes response.body, "Living Room"
+  end
+
+  test "GET /locations?tag= with unknown tag shows no locations" do
+    get locations_path, params: { tag: "nonexistent" }
+    assert_response :success
+    refute_includes response.body, "Living Room"
+    refute_includes response.body, "London"
+  end
+
+  test "GET /locations/:id shows tags" do
+    get location_path(locations(:living_room))
+    assert_select "a", text: /home/i
+  end
 end

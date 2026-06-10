@@ -1,0 +1,9 @@
+home:
+  name: home
+  created_at: <%= 1.week.ago.iso8601 %>
+  updated_at: <%= 1.week.ago.iso8601 %>
+
+cafe:
+  name: cafe
+  created_at: <%= 1.week.ago.iso8601 %>
+  updated_at: <%= 1.week.ago.iso8601 %>

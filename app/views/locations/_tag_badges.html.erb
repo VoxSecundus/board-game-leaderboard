@@ -1,0 +1,4 @@
+<% location.tags.order(:name).each do |tag| %>
+  <%= link_to tag.name, locations_path(tag: tag.name),
+      class: "inline-block text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-800 transition-colors" %>
+<% end %>
