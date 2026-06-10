@@ -17,6 +17,11 @@
               class: "text-indigo-600 dark:text-indigo-400 hover:underline" %>
         </p>
       <% end %>
+      <% if @location.tags.any? %>
+        <div class="flex flex-wrap gap-1 mt-2">
+          <%= render "tag_badges", location: @location %>
+        </div>
+      <% end %>
       <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Added <%= @location.created_at.to_date %></p>
     </div>
     <div class="flex items-center gap-3 flex-shrink-0">

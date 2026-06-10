@@ -1,4 +1,6 @@
 class Location < ApplicationRecord
+  include Taggable
+
   has_many :plays, dependent: :nullify
 
   validates :name, presence: true

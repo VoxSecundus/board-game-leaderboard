@@ -1,0 +1,13 @@
+one:
+  tag_id: <%= ActiveRecord::FixtureSet.identify(:home) %>
+  taggable_type: Location
+  taggable_id: <%= ActiveRecord::FixtureSet.identify(:living_room) %>
+  created_at: <%= 1.week.ago.iso8601 %>
+  updated_at: <%= 1.week.ago.iso8601 %>
+
+two:
+  tag_id: <%= ActiveRecord::FixtureSet.identify(:cafe) %>
+  taggable_type: Location
+  taggable_id: <%= ActiveRecord::FixtureSet.identify(:london) %>
+  created_at: <%= 1.week.ago.iso8601 %>
+  updated_at: <%= 1.week.ago.iso8601 %>

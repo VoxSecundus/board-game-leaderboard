@@ -12,6 +12,11 @@
             <%= number_with_precision(location.longitude, precision: 4) %>
           </p>
         <% end %>
+        <% if location.tags.any? %>
+          <div class="flex flex-wrap gap-1 mt-1">
+            <%= render "locations/tag_badges", location: location %>
+          </div>
+        <% end %>
         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Added <%= location.created_at.to_date %></p>
       </div>
 
