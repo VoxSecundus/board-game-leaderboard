@@ -1,0 +1,59 @@
+<% content_for :title, "Settings" %>
+<% breadcrumbs(["Home", root_path], ["Settings", nil]) %>
+
+<div class="max-w-2xl">
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Settings</h1>
+
+  <%= form_with model: @setting, url: settings_path, method: :patch, class: "space-y-8" do |f| %>
+    <section>
+      <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-1">Default Players</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
+        These players are automatically added as participants when opening a new play form.
+      </p>
+
+      <input type="hidden" name="app_setting[default_player_ids][]" value="">
+
+      <% if @players.any? %>
+        <div class="grid grid-cols-3 gap-3">
+          <% @players.each do |player| %>
+            <label class="relative cursor-pointer select-none">
+              <input type="checkbox"
+                     name="app_setting[default_player_ids][]"
+                     value="<%= player.id %>"
+                     class="peer sr-only"
+                     <%= "checked" if @setting.default_player_ids.include?(player.id) %>>
+              <div class="flex flex-col items-center gap-2 p-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm
+                          peer-checked:border-indigo-500 peer-checked:bg-indigo-50 dark:peer-checked:bg-indigo-900/20
+                          hover:border-gray-300 dark:hover:border-gray-500 transition-colors">
+                <% if player.profile_picture.attached? %>
+                  <%= image_tag player.profile_picture.variant(resize_to_fill: [64, 64]),
+                      width: 64, height: 64,
+                      class: "rounded-full object-cover",
+                      alt: player.name %>
+                <% else %>
+                  <span class="inline-flex items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-semibold text-lg"
+                        style="width:64px;height:64px;flex-shrink:0;">
+                    <%= player.name.first.upcase %>
+                  </span>
+                <% end %>
+                <span class="text-sm font-medium text-gray-900 dark:text-white text-center leading-tight"><%= player.name %></span>
+              </div>
+              <span class="absolute top-1.5 right-1.5 hidden peer-checked:flex items-center justify-center w-5 h-5 rounded-full bg-indigo-600 text-white pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </span>
+            </label>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-sm text-gray-500 dark:text-gray-400">No players yet. <%= link_to "Add a player", new_player_path, class: "text-indigo-600 dark:text-indigo-400 hover:underline" %> to configure defaults.</p>
+      <% end %>
+    </section>
+
+    <div>
+      <%= f.submit "Save Settings",
+          class: "rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 px-4 transition-colors cursor-pointer" %>
+    </div>
+  <% end %>
+</div>

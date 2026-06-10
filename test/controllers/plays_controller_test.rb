@@ -299,4 +299,30 @@ class PlaysControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     refute_includes response.body, "OldestPlayLocation"
   end
+
+  test "GET /plays/new with no default players builds one empty participant row" do
+    AppSetting.instance.update!(default_player_ids: [])
+    get new_play_path
+    assert_response :success
+    assert_select "input[name*='[_destroy]'][value='false']", count: 1
+    assert_select "select[name*='[player_id]'] option[selected]", count: 0
+  end
+
+  test "GET /plays/new with default players pre-populates one row per player" do
+    AppSetting.instance.update!(default_player_ids: [ players(:alice).id, players(:bob).id ])
+    get new_play_path
+    assert_response :success
+    assert_select "input[name*='[_destroy]'][value='false']", count: 2
+    assert_select "select[name*='[player_id]'] option[selected][value='#{players(:alice).id}']", count: 1
+    assert_select "select[name*='[player_id]'] option[selected][value='#{players(:bob).id}']", count: 1
+  end
+
+  test "GET /plays/new omits rows for deleted default players without crashing" do
+    AppSetting.instance.update!(default_player_ids: [ players(:alice).id, players(:bob).id ])
+    players(:bob).destroy
+    get new_play_path
+    assert_response :success
+    assert_select "input[name*='[_destroy]'][value='false']", count: 1
+    assert_select "select[name*='[player_id]'] option[selected][value='#{players(:alice).id}']", count: 1
+  end
 end
