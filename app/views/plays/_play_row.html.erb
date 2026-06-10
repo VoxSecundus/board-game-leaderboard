@@ -14,7 +14,7 @@
   </td>
   <td class="px-6 py-4 text-sm">
     <div class="flex flex-wrap items-center gap-2">
-      <% play.play_participants.includes(:player).each do |pp| %>
+      <% play.play_participants.sort_by { |pp| pp.player.name }.each do |pp| %>
         <span class="<%= pp.winner? ? 'rounded-full ring-2 ring-amber-500 ring-offset-1 ring-offset-white dark:ring-offset-gray-900' : '' %>" title="<%= pp.winner? ? 'Winner' : '' %>">
           <%= player_avatar(pp.player) %>
         </span>

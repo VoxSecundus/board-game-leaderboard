@@ -81,7 +81,7 @@ class PlaysController < ApplicationController
   private
 
   def set_play
-    @play = Play.find(params[:id])
+    @play = Play.includes(:game, :location, play_participants: :player).find(params[:id])
   end
 
   def bulk_single_play_params(p)

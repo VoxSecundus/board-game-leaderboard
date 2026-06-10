@@ -258,6 +258,30 @@ class PlaysControllerTest < ActionDispatch::IntegrationTest
     assert_match(/★/, response.body)
   end
 
+  test "participants on show page are sorted alphabetically by player name" do
+    play = Play.create!(game: games(:chess))
+    zara     = Player.create!(name: "Zara")
+    aardvark = Player.create!(name: "Aardvark")
+    play.play_participants.create!(player: zara)
+    play.play_participants.create!(player: aardvark)
+
+    get play_path(play)
+    body = response.body
+    assert_operator body.index(player_path(aardvark)), :<, body.index(player_path(zara))
+  end
+
+  test "participants on index page are sorted alphabetically by player name" do
+    play = Play.create!(game: games(:chess))
+    zara     = Player.create!(name: "Zara")
+    aardvark = Player.create!(name: "Aardvark")
+    play.play_participants.create!(player: zara)
+    play.play_participants.create!(player: aardvark)
+
+    get plays_path
+    body = response.body
+    assert_operator body.index(player_path(aardvark)), :<, body.index(player_path(zara))
+  end
+
   test "GET /plays paginates: page 2 contains records beyond 25" do
     old_location = Location.create!(name: "OldestPlayLocation")
     21.times { |i| Play.create!(game: games(:chess), date: (i + 20).days.ago) }
