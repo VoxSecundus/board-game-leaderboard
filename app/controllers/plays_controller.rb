@@ -10,9 +10,15 @@ class PlaysController < ApplicationController
 
   def new
     @play = Play.new
-    @play.play_participants.build
-    @players = Player.order(:name)
-    @games = Game.order(:name)
+    default_ids = AppSetting.instance.default_player_ids
+    valid_ids   = Player.where(id: default_ids).pluck(:id)
+    if valid_ids.any?
+      valid_ids.each { |id| @play.play_participants.build(player_id: id) }
+    else
+      @play.play_participants.build
+    end
+    @players   = Player.order(:name)
+    @games     = Game.order(:name)
     @locations = Location.order(:name)
   end
 

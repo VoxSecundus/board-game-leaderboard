@@ -19,6 +19,8 @@ Rails.application.routes.draw do
     end
   end
 
+  resource :settings, only: %i[show update]
+
   get "compare", to: "comparisons#show", as: :compare
 
   get "up" => "rails/health#show", as: :rails_health_check
