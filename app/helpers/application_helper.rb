@@ -21,12 +21,14 @@ module ApplicationHelper
       image_tag(thumb,
         width: px, height: px,
         class: "inline-block rounded-full object-cover",
-        alt: player.name)
+        alt: player.name,
+        title: player.name)
     else
       content_tag(:span,
         player.name.first.upcase,
         class: "inline-flex items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-semibold text-xs select-none",
-        style: "width:#{px}px;height:#{px}px;flex-shrink:0;")
+        style: "width:#{px}px;height:#{px}px;flex-shrink:0;",
+        title: player.name)
     end
 
     link_to img, player_path(player)

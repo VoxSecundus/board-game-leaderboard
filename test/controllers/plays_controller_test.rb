@@ -11,6 +11,14 @@ class PlaysControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "GET /plays shows each participant name on their avatar" do
+    get plays_path
+
+    assert_select "tr[data-navigate-url-value='#{play_path(@play)}'] [title='Alice']"
+    assert_select "tr[data-navigate-url-value='#{play_path(@play)}'] [title='Bob']"
+    assert_select "tr[data-navigate-url-value='#{play_path(@play)}'] [title='Winner']", count: 0
+  end
+
   test "GET /plays with no games shows disabled Record Play button" do
     Game.destroy_all
     get plays_path
