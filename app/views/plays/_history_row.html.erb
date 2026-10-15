@@ -33,8 +33,7 @@ end %>
   <td class="px-6 py-4 text-sm">
     <div class="flex flex-wrap items-center gap-2">
       <% pps.each do |pp| %>
-        <span class="<%= pp.winner? ? 'rounded-full ring-2 ring-amber-500 ring-offset-1 ring-offset-white dark:ring-offset-gray-900' : '' %>"
-              title="<%= pp.winner? ? 'Winner' : '' %>">
+        <span class="<%= pp.winner? ? 'rounded-full ring-2 ring-amber-500 ring-offset-1 ring-offset-white dark:ring-offset-gray-900' : '' %>">
           <%= player_avatar(pp.player) %>
         </span>
       <% end %>
