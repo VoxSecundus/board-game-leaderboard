@@ -31,7 +31,8 @@
 
 /public/assets
 
-# Ignore key files and encrypted credentials (provide RAILS_MASTER_KEY at runtime).
+# Ignore key files and encrypted credentials. The app doesn't use Rails credentials
+# (configuration is via environment variables); these stay ignored in case one is generated.
 /config/*.key
 /config/credentials.yml.enc
 

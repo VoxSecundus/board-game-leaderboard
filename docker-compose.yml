@@ -7,6 +7,8 @@ services:
       APP_PASSWORD: ${APP_PASSWORD?APP_PASSWORD is required}
       RAILS_ENV: production
       BGG_API_TOKEN: ${BGG_API_TOKEN:-}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-}
+      SOLID_QUEUE_IN_PUMA: "true"
     volumes:
       - storage_data:/rails/storage
     restart: unless-stopped

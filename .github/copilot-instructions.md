@@ -18,7 +18,7 @@ Board Game Leaderboard (BGL) is a single-password, single-tenant Rails web app f
 | File uploads | Active Storage (local disk), synchronous analysis |
 | Background jobs | Solid Queue |
 | Cache | Solid Cache |
-| Auth | Single bcrypt password stored in Rails credentials |
+| Auth | Single bcrypt password hash in the `APP_PASSWORD` env var |
 | Tests | Minitest + Capybara + Selenium (headless Chrome) |
 | Linter | RuboCop (`rubocop-rails-omakase` style) |
 | Security | Brakeman, bundler-audit, importmap audit |
@@ -52,21 +52,22 @@ bin/rails test          # unit + controller tests
 bin/rails test:system   # Capybara/Selenium system tests
 ```
 
-### Credentials (`config/credentials.yml.enc` — gitignored)
+### Environment variables (`.env` — gitignored)
 
-The app requires two keys in Rails credentials:
+The app does **not** use Rails credentials (`config/credentials.yml.enc` / `RAILS_MASTER_KEY`). All configuration is via environment variables, loaded from `.env` by `dotenv-rails` in development and test. Copy `.env.example` to `.env`.
 
-```yaml
-secret_key_base: <output of: rails secret>
-app_password: <bcrypt hash — see below>
-```
+| Variable | Required | Notes |
+|---|---|---|
+| `APP_PASSWORD` | Yes | bcrypt hash of the login password, read via `ENV.fetch("APP_PASSWORD")` in `ApplicationController` |
+| `SECRET_KEY_BASE` | No | Development/test generate their own. In production, if unset, a key is generated on first boot and stored in `storage/.secret_key_base` (see `config/environments/production.rb`) |
+| `BGG_API_TOKEN` | No | Enables "Fetch from BGG" on game forms |
 
 Generate a bcrypt hash:
-```ruby
-BCrypt::Password.create("your-password-here")
+```bash
+rails runner "puts BCrypt::Password.create('your-password-here')"
 ```
 
-**For CI/testing**, `SECRET_KEY_BASE` can be set as an environment variable — the CI workflow uses `secrets.SECRET_KEY_BASE` (falls back to a dummy value). No `app_password` is needed for tests because `SessionsController#valid_password?` is stubbed via Mocha.
+**For CI/testing**, no `APP_PASSWORD` is needed because `SessionsController#valid_password?` is stubbed via Mocha.
 
 ---
 
@@ -143,7 +144,7 @@ PlayParticipant — belongs_to play, belongs_to player, score (integer, optional
 3. **Importmap** (no npm/webpack). Add JS packages with `bin/importmap pin <package>`, not via npm.
 4. **Active Storage analysis is synchronous** (`config.active_storage.queues.analysis = nil`) so image dimensions are available immediately after upload — important for `SquareImageValidator`.
 5. **`activerecord-sqlcipher-adapter` does not exist on RubyGems.** If at-rest encryption is needed, use filesystem-level encryption or `ActiveRecord::Encryption`.
-6. **`config/credentials.yml.enc` is gitignored.** Never commit it. For CI the `SECRET_KEY_BASE` env var is sufficient; no `app_password` is needed because tests stub authentication.
+6. **Do not introduce Rails credentials** (`credentials.yml.enc`, `master.key`, `RAILS_MASTER_KEY`). Configuration is via environment variables only; tests stub authentication so no `APP_PASSWORD` is needed in CI.
 7. **RuboCop style** is `rubocop-rails-omakase`. Run `bin/rubocop -a` to auto-correct most offences before committing.
 8. **System tests need Chrome** — the CI workflow relies on Chrome being available in the runner's environment. On a bare machine, install `google-chrome-stable` or `chromium-browser`.
 9. **Fixtures use ERB** (`<%= 1.week.ago.to_date %>` etc.). Fixture names map to helpers in tests (`plays(:chess_night)`, `players(:alice)`, etc.).
@@ -162,5 +163,5 @@ Four parallel jobs: `test`, `lint`, `scan_ruby`, `scan_js`. All use `ubuntu-late
 | Error | Root Cause | Workaround |
 |-------|-----------|-----------|
 | `Vips::Error` / missing `libvips` | `ruby-vips` requires the native `libvips` shared library | Install with `sudo apt-get install -y libvips` before running tests or the server |
-| `Rails.application.credentials.app_password!` raises in test | `credentials.yml.enc` is gitignored | Stub `valid_password?` in tests (already done in `AuthHelper` and system test setups); set `SECRET_KEY_BASE` env var for `secret_key_base` |
+| `KeyError: key not found: "APP_PASSWORD"` in test | `APP_PASSWORD` not set | Stub `valid_password?` in tests (already done in `AuthHelper` and system test setups) |
 | `activerecord-sqlcipher-adapter` not found | Gem does not exist on RubyGems | Use plain `sqlite3` gem; consider `ActiveRecord::Encryption` if at-rest encryption is required |

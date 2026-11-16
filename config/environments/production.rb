@@ -3,6 +3,28 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  # Secret key base for signing cookies/sessions. Resolution order:
+  #   1. SECRET_KEY_BASE env var, if non-empty.
+  #   2. A throwaway key when SECRET_KEY_BASE_DUMMY is set (assets:precompile
+  #      during the Docker build), so a real key never ends up in the image.
+  #   3. storage/.secret_key_base, generated on first boot and persisted in
+  #      the storage volume.
+  config.secret_key_base = ENV["SECRET_KEY_BASE"].presence || begin
+    if ENV["SECRET_KEY_BASE_DUMMY"]
+      SecureRandom.hex(64)
+    else
+      key_file = Rails.root.join("storage", ".secret_key_base")
+      begin
+        File.open(key_file, File::WRONLY | File::CREAT | File::EXCL, 0o600) do |file|
+          file.write(SecureRandom.hex(64))
+        end
+      rescue Errno::EEXIST
+        # Key already exists (existing install, or another process won the race).
+      end
+      File.read(key_file).strip
+    end
+  end
+
   # Code is not reloaded between requests.
   config.enable_reloading = false
 
