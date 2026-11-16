@@ -57,7 +57,7 @@ bundle install
 cp .env.example .env
 ```
 
-Edit `.env` and fill in the two required values (see [Configuration](#configuration) below), then:
+Edit `.env` and fill in the required value (see [Configuration](#configuration) below), then:
 
 ```bash
 rails db:create db:migrate
@@ -73,7 +73,7 @@ Environment variables are loaded from `.env` via `dotenv-rails`. Copy `.env.exam
 | Variable | Required | Description |
 |---|---|---|
 | `APP_PASSWORD` | Yes | bcrypt hash of the login password |
-| `SECRET_KEY_BASE` | Yes | Secret key for signing cookies/sessions |
+| `SECRET_KEY_BASE` | No | Secret key for signing cookies/sessions (generated automatically if unset — see below) |
 | `BGG_API_TOKEN` | No | Bearer token for the BGG XML API (enables "Fetch from BGG" on game forms) |
 
 ### Generating a password hash
@@ -82,7 +82,9 @@ Environment variables are loaded from `.env` via `dotenv-rails`. Copy `.env.exam
 rails runner "puts BCrypt::Password.create('your-password-here')"
 ```
 
-### Generating a secret key base
+### Secret key base
+
+`SECRET_KEY_BASE` is optional. In development and test, Rails generates its own key. In production (including Docker), if `SECRET_KEY_BASE` is not set, a key is generated automatically on first boot and stored in `storage/.secret_key_base`. To supply your own key instead, generate one with:
 
 ```bash
 rails secret
@@ -105,7 +107,11 @@ APP_PASSWORD=$(docker run --rm ruby:3.4.5-slim ruby -rbcrypt -e 'puts BCrypt::Pa
   docker compose up -d
 ```
 
-The app runs on port 3000. `SECRET_KEY_BASE` is generated automatically on first boot and persisted in the `storage_data` Docker volume alongside the database and uploads.
+The app runs on port 3000. `SECRET_KEY_BASE` is generated automatically on first boot and persisted in the `storage_data` Docker volume (as `.secret_key_base`) alongside the database and uploads. To use your own key, set `SECRET_KEY_BASE` in the environment or `.env` and it takes precedence over the stored one.
+
+Backing up the `storage_data` volume also backs up the key. If the key is lost, a new one is generated: the only effect is that users are logged out and previously generated image URLs stop working. No data is lost.
+
+One-off commands such as `docker compose exec web bin/rails console` use the same key, and background jobs (e.g. Active Storage analysis and purging) run inside the web process via `SOLID_QUEUE_IN_PUMA`.
 
 ## Running Tests
 
