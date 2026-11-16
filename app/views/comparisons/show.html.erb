@@ -4,7 +4,7 @@
 <div class="max-w-4xl">
   <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Player Comparison</h1>
 
-  <%= form_with url: compare_path, method: :get, data: { turbo_frame: "results" },
+  <%= form_with url: compare_path, method: :get, data: { turbo_frame: "results", turbo_action: "advance" },
       class: "bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6" do |f| %>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
       <div>
@@ -28,6 +28,14 @@
             include_blank: "— All games —",
             class: "block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" %>
       </div>
+    </div>
+
+    <div class="mb-4">
+      <label for="one_v_one_only" class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+        <%= check_box_tag :one_v_one_only, "1", @one_v_one_only,
+            class: "rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" %>
+        <span>1v1 games only</span>
+      </label>
     </div>
 
     <%= submit_tag "Compare",

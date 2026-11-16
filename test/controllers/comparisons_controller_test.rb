@@ -52,6 +52,33 @@ class ComparisonsControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame[id='results'] td", text: games(:catan).name, count: 0
   end
 
+  test "GET /compare with 1v1 filter excludes multiplayer plays and preserves query state" do
+    multiplayer_play = Play.create!(game: games(:chess))
+    multiplayer_play.play_participants.create!(player: @bob, winner: true)
+    multiplayer_play.play_participants.create!(player: @alice, winner: false)
+    multiplayer_play.play_participants.create!(player: players(:newcomer), winner: false)
+
+    comparison_params = { player1_id: @alice.id, player2_id: @bob.id }
+    get compare_path, params: comparison_params.merge(one_v_one_only: "1")
+
+    assert_response :success
+    assert_select "form[data-turbo-frame='results'][data-turbo-action='advance']"
+    assert_select "input[type='checkbox'][name='one_v_one_only'][value='1'][checked]"
+    assert_select "turbo-frame[id='results'] p.text-3xl" do |values|
+      assert_equal ["1", "0", "1"], values.map(&:text)
+    end
+
+    get compare_path, params: comparison_params
+
+    assert_response :success
+    assert_select "input[type='checkbox'][name='one_v_one_only']" do |checkboxes|
+      assert_nil checkboxes.first["checked"]
+    end
+    assert_select "turbo-frame[id='results'] p.text-3xl" do |values|
+      assert_equal ["1", "0", "2"], values.map(&:text)
+    end
+  end
+
   test "GET /compare with catan filter shows only catan in results" do
     get compare_path, params: {
       player1_id: @alice.id,
